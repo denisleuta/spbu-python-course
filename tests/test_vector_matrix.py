@@ -4,7 +4,7 @@ import math
 from vector_matrix import scalar_multyply, vector_length, angle_vectors, matrix_addition, matrix_multiply, transpose_matrix
 
 def test_scalar_multyply():
-    assert dot_product([1, 2, 3], [4, 5, 6]) == 32
+    assert scalar_multyply([1, 2, 3], [4, 5, 6]) == 32
 
 def test_vector_length():
     assert vector_length([3, 4]) == 5
