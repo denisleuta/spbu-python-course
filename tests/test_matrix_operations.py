@@ -4,7 +4,7 @@ import math
 import sys
 import os
 
-sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from project.matrix_operations import matrix_addition, matrix_multiply, transpose_matrix
 
 def test_matrix_additions():

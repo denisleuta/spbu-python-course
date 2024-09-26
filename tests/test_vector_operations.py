@@ -4,7 +4,7 @@ import math
 import sys
 import os
 
-sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from project.vector_operations import scalar_multyply, vector_length, angle_vectors
 
 def test_scalar_multyply():
