@@ -42,19 +42,6 @@ def vector_length(v: List[float]) -> float:
 
 
 def angle_vectors(v1: List[float], v2: List[float]) -> float:
-    """
-    Calculates the angle between two vectors in radians.
-
-    Parameters:
-    v1 (List[float]): The first vector.
-    v2 (List[float]): The second vector.
-
-    Returns:
-    float: The angle between two vectors in radians.
-
-    Exceptions:
-    ValueError: If the length of one of the vectors is zero.
-    """
     length_v1 = vector_length(v1)
     length_v2 = vector_length(v2)
 
@@ -63,4 +50,10 @@ def angle_vectors(v1: List[float], v2: List[float]) -> float:
             "The length of one of the vectors is zero, the angle cannot be determined."
         )
 
-    return math.acos(scalar_multiply(v1, v2) / (length_v1 * length_v2))
+    # Вычисление скалярного произведения
+    dot_product = scalar_multiply(v1, v2)
+    # Убедитесь, что значение cos_angle не выходит за пределы [-1, 1]
+    cos_angle = dot_product / (length_v1 * length_v2)
+    cos_angle = max(-1.0, min(1.0, cos_angle))
+
+    return math.acos(cos_angle)

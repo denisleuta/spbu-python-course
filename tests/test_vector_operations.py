@@ -54,8 +54,7 @@ def test_angle_vectors():
     assert pytest.approx(angle_vectors([1, 0], [0, 1])) == math.pi / 2
 
     # The angle between the same vectors (must be 0)
-    assert pytest.approx(angle_vectors([1, 2], [1, 2])) == 0
-
+    assert pytest.approx(angle_vectors([1, 2], [1, 2]), rel=1e-12) == 0
     # The angle between the opposite vectors (must be π)
     assert pytest.approx(angle_vectors([1, 0], [-1, 0])) == math.pi
 
