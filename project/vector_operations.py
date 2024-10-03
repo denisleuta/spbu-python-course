@@ -50,9 +50,8 @@ def angle_vectors(v1: List[float], v2: List[float]) -> float:
             "The length of one of the vectors is zero, the angle cannot be determined."
         )
 
-    # Вычисление скалярного произведения
+    # Scalar multiply
     dot_product = scalar_multiply(v1, v2)
-    # Убедитесь, что значение cos_angle не выходит за пределы [-1, 1]
     cos_angle = dot_product / (length_v1 * length_v2)
     cos_angle = max(-1.0, min(1.0, cos_angle))
 
