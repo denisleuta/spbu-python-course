@@ -42,6 +42,20 @@ def vector_length(v: List[float]) -> float:
 
 
 def angle_vectors(v1: List[float], v2: List[float]) -> float:
+    """
+    Calculate the angle (in radians) between two vectors.
+
+    Parameters:
+    v1 (List[float]): The first vector as a list of floats.
+    v2 (List[float]): The second vector as a list of floats.
+
+    Returns:
+    float: The angle between the two vectors in radians.
+
+    Raises:
+    ValueError: If the length of either vector is zero.
+
+    """
     length_v1 = vector_length(v1)
     length_v2 = vector_length(v2)
 
