@@ -3,41 +3,41 @@ from typing import List
 
 def matrix_addition(m1: List[List[float]], m2: List[List[float]]) -> List[List[float]]:
     """
-    Складывает две матрицы.
+    Adds two matrices.
 
-    Параметры:
-    m1 (List[List[float]]): Первая матрица.
-    m2 (List[List[float]]): Вторая матрица.
+    Parameters:
+    m1 (List[List[float]]): The first matrix.
+    m2 (List[List[float]]): The second matrix.
 
-    Возвращает:
-    List[List[float]]: Результат сложения двух матриц.
+    Returns:
+    List[List[float]]: The result of adding two matrices.
 
-    Исключения:
-    ValueError: Если размеры матриц не совпадают.
+    Exceptions:
+    ValueError: If the dimensions of the matrices do not match.
     """
     if len(m1) != len(m2) or any(len(row1) != len(row2) for row1, row2 in zip(m1, m2)):
-        raise ValueError("Размеры матриц должны совпадать.")
+        raise ValueError("The sizes of the matrices must match.")
 
     return [[x + y for x, y in zip(row1, row2)] for row1, row2 in zip(m1, m2)]
 
 
 def matrix_multiply(m1: List[List[float]], m2: List[List[float]]) -> List[List[float]]:
     """
-    Умножает две матрицы.
+    Multiplies two matrices.
 
-    Параметры:
-    m1 (List[List[float]]): Первая матрица.
-    m2 (List[List[float]]): Вторая матрица.
+    Parameters:
+    m1 (List[List[float]]): The first matrix.
+    m2 (List[List[float]]): The second matrix.
 
-    Возвращает:
-    List[List[float]]: Результат умножения двух матриц.
+    Returns:
+    List[List[float]]: The result of multiplying two matrices.
 
-    Исключения:
-    ValueError: Если количество столбцов первой матрицы не совпадает с количеством строк второй матрицы.
+    Exceptions:
+    ValueError: If the number of columns of the first matrix does not match the number of rows of the second matrix.
     """
     if len(m1[0]) != len(m2):
         raise ValueError(
-            "Количество столбцов первой матрицы должно совпадать с количеством строк второй матрицы."
+            "The number of columns of the first matrix must match the number of rows of the second matrix."
         )
 
     return [[sum(x * y for x, y in zip(row, col)) for col in zip(*m2)] for row in m1]
@@ -45,12 +45,12 @@ def matrix_multiply(m1: List[List[float]], m2: List[List[float]]) -> List[List[f
 
 def transpose_matrix(m: List[List[float]]) -> List[List[float]]:
     """
-    Транспонирует матрицу.
+    Transposes the matrix.
 
-    Параметры:
-    m (List[List[float]]): Исходная матрица.
+    Parameters:
+    m (List[List[float]]): The original matrix.
 
-    Возвращает:
-    List[List[float]]: Транспонированная матрица.
+    Returns:
+    List[List[float]]: The transposed matrix.
     """
     return list(map(list, zip(*m)))

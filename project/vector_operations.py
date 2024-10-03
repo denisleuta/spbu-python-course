@@ -4,63 +4,63 @@ from typing import List
 
 def scalar_multiply(v1: List[float], v2: List[float]) -> float:
     """
-    Вычисляет скалярное произведение двух векторов.
+    Calculates the scalar product of two vectors.
 
-    Параметры:
-    v1 (List[float]): Первый вектор.
-    v2 (List[float]): Второй вектор.
+    Parameters:
+    v1 (List[float]): The first vector.
+    v2 (List[float]): The second vector.
 
-    Возвращает:
-    float: Скалярное произведение двух векторов.
+    Returns:
+    float: The scalar product of two vectors.
 
-    Исключения:
-    ValueError: Если размеры векторов не совпадают.
+    Exceptions:
+    ValueError: If the dimensions of the vectors do not match
     """
     if len(v1) != len(v2):
-        raise ValueError("Размеры векторов должны совпадать.")
+        raise ValueError("The dimensions of the vectors must match.")
 
     return sum(x * y for x, y in zip(v1, v2))
 
 
 def vector_length(v: List[float]) -> float:
     """
-    Вычисляет длину (норму) вектора.
+    Calculates the length (norm) of the vector.
 
-    Параметры:
-    v (List[float]): Вектор.
+    Parameters:
+    v (List[float]): Vector.
 
-    Возвращает:
-    float: Длина вектора.
+    Returns:
+    float: The length of the vector.
 
-    Исключения:
-    ValueError: Если вектор пустой.
+    Exceptions:
+    ValueError: If the vector is empty.
     """
     if not v:
-        raise ValueError("Вектор не должен быть пустым.")
+        raise ValueError("The vector must not be empty.")
 
     return math.sqrt(scalar_multiply(v, v))
 
 
 def angle_vectors(v1: List[float], v2: List[float]) -> float:
     """
-    Вычисляет угол между двумя векторами в радианах.
+    Calculates the angle between two vectors in radians.
 
-    Параметры:
-    v1 (List[float]): Первый вектор.
-    v2 (List[float]): Второй вектор.
+    Parameters:
+    v1 (List[float]): The first vector.
+    v2 (List[float]): The second vector.
 
-    Возвращает:
-    float: Угол между двумя векторами в радианах.
+    Returns:
+    float: The angle between two vectors in radians.
 
-    Исключения:
-    ValueError: Если длина одного из векторов равна нулю.
+    Exceptions:
+    ValueError: If the length of one of the vectors is zero.
     """
     length_v1 = vector_length(v1)
     length_v2 = vector_length(v2)
 
     if length_v1 == 0 or length_v2 == 0:
         raise ValueError(
-            "Длина одного из векторов равна нулю, угол не может быть определен."
+            "The length of one of the vectors is zero, the angle cannot be determined."
         )
 
     return math.acos(scalar_multiply(v1, v2) / (length_v1 * length_v2))

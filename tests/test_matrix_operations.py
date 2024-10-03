@@ -1,4 +1,5 @@
 import pytest
+
 import math
 
 import sys
@@ -9,19 +10,19 @@ from project.matrix_operations import matrix_addition, matrix_multiply, transpos
 
 
 def test_matrix_addition():
-    # Обычный случай
+    # The normal case
     assert matrix_addition([[1, 2], [3, 4]], [[5, 6], [7, 8]]) == [[6, 8], [10, 12]]
 
-    # Сложение с нулевой матрицей
+    # Addition with a zero matrix
     assert matrix_addition([[1, 2], [3, 4]], [[0, 0], [0, 0]]) == [[1, 2], [3, 4]]
 
-    # Сложение матриц с отрицательными числами
+    # Addition with negative nums
     assert matrix_addition([[-1, -2], [-3, -4]], [[5, 6], [7, 8]]) == [[4, 4], [4, 4]]
 
-    # Граничный случай: пустые матрицы
+    # Boundary case: empty matrices
     assert matrix_addition([], []) == []
 
-    # Исключение: несоответствие размеров
+    # Exception: size mismatch
     try:
         matrix_addition([[1]], [[1, 2]])
     except ValueError:
@@ -31,19 +32,32 @@ def test_matrix_addition():
 
 
 def test_matrix_multiply():
-    # Обычный случай
+    # The normal case (square matrices)
     assert matrix_multiply([[1, 2], [3, 4]], [[5, 6], [7, 8]]) == [[19, 22], [43, 50]]
 
-    # Умножение на единичную матрицу
+    # Multiplication by a single matrix (identity)
     assert matrix_multiply([[1, 2], [3, 4]], [[1, 0], [0, 1]]) == [[1, 2], [3, 4]]
 
-    # Умножение с нулевой матрицей
+    # Multiplication with a zero matrix
     assert matrix_multiply([[1, 2]], [[0], [0]]) == [[0]]
 
-    # Граничный случай: пустые матрицы
+    # Test with non-square matrices (2x3 and 3x2)
+    assert matrix_multiply([[1, 2, 3], [4, 5, 6]], [[7, 8], [9, 10], [11, 12]]) == [
+        [58, 64],
+        [139, 154],
+    ]
+
+    # Test with non-square matrices (3x2 and 2x3)
+    assert matrix_multiply([[1, 2], [3, 4], [5, 6]], [[7, 8], [9, 10]]) == [
+        [25, 28],
+        [57, 64],
+        [89, 100],
+    ]
+
+    # Boundary case: empty matrices
     assert matrix_multiply([], []) == []
 
-    # Исключение: несоответствие размеров
+    # Exception: size mismatch
     try:
         matrix_multiply([[1]], [[1], [2]])
     except ValueError:
@@ -53,17 +67,17 @@ def test_matrix_multiply():
 
 
 def test_transpose_matrix():
-    # Обычный случай
+    # The normal case
     assert transpose_matrix([[1, 2, 3], [4, 5, 6]]) == [[1, 4], [2, 5], [3, 6]]
 
-    # Транспонирование квадратной матрицы
+    # Transposing a square matrix
     assert transpose_matrix([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]
 
-    # Транспонирование матрицы с одной строкой
+    # Transposing a matrix with a single row
     assert transpose_matrix([[1, 2]]) == [[1], [2]]
 
-    # Транспонирование матрицы с одним столбцом
+    # Transposing a matrix with one column
     assert transpose_matrix([[1], [2]]) == [[1, 2]]
 
-    # Граничный случай: пустая матрица
+    # Boundary case: an empty matrix
     assert transpose_matrix([]) == []

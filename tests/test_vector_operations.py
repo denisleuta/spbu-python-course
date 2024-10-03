@@ -9,19 +9,19 @@ from project.vector_operations import scalar_multiply, vector_length, angle_vect
 
 
 def test_scalar_multiply():
-    # Обычный случай
+    # The normal case
     assert scalar_multiply([1, 2, 3], [4, 5, 6]) == 32
 
-    # Скалярное произведение с нулевым вектором
+    # Scalar product with a zero vector
     assert scalar_multiply([0, 0, 0], [1, 2, 3]) == 0
 
-    # Скалярное произведение с отрицательными числами
+    # Scalar product with negative numbers
     assert scalar_multiply([-1, -2, -3], [4, 5, 6]) == -32
 
-    # Граничный случай: пустые векторы
+    # Boundary case: empty vectors
     assert scalar_multiply([], []) == 0
 
-    # Исключение: несоответствие размеров
+    # Exception: size mismatch
     try:
         scalar_multiply([1], [1, 2])
     except ValueError:
@@ -31,16 +31,16 @@ def test_scalar_multiply():
 
 
 def test_vector_length():
-    # Обычный случай
+    # The normal case
     assert vector_length([3, 4]) == 5
 
-    # Длина нулевого вектора
+    # The length of the zero vector
     assert vector_length([0, 0]) == 0
 
-    # Длина вектора с отрицательными числами
+    # The length of a vector with negative numbers
     assert vector_length([-3, -4]) == 5
 
-    # Граничный случай: пустой вектор
+    # Boundary case: empty vector
     try:
         vector_length([])
     except ValueError:
@@ -50,16 +50,16 @@ def test_vector_length():
 
 
 def test_angle_vectors():
-    # Обычный случай
+    # The normal case
     assert pytest.approx(angle_vectors([1, 0], [0, 1])) == math.pi / 2
 
-    # Угол между одинаковыми векторами (должен быть 0)
+    # The angle between the same vectors (must be 0)
     assert pytest.approx(angle_vectors([1, 2], [1, 2])) == 0
 
-    # Угол между противоположными векторами (должен быть π)
+    # The angle between the opposite vectors (must be π)
     assert pytest.approx(angle_vectors([1, 0], [-1, 0])) == math.pi
 
-    # Угол между нулевыми векторами (неопределен)
+    # The angle between the zero vectors (undefined)
     try:
         angle_vectors([0, 0], [1, 1])
     except ValueError:
@@ -67,7 +67,7 @@ def test_angle_vectors():
     else:
         assert False, "Expected ValueError for zero-length vector"
 
-    # Угол между вектором и нулевым вектором (неопределен)
+    # The angle between the vector and the zero vector (undefined)
     try:
         angle_vectors([1, 2], [0, 0])
     except ValueError:
