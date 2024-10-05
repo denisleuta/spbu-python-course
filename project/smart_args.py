@@ -18,7 +18,7 @@ def smart_args(func):
     def wrapper(*args, **kwargs):
         func_spec = inspect.getfullargspec(func)
 
-        # Обработка именованных аргументов с Isolated и Evaluated
+        # Handling named arguments with Isolated and Evaluated
         for name, default in func_spec.kwonlydefaults.items():
             if name not in kwargs:
                 if isinstance(default, Isolated):
