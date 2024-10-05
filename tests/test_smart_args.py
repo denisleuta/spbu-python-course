@@ -2,15 +2,17 @@ import pytest
 import random
 import sys
 import os
+import copy
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from project.smart_args import smart_args, Isolated, Evaluated
 
 
 @smart_args
-def check_isolation(*, d=Isolated()):
-    d["a"] = 0
-    return d
+def check_isolation(d):
+    d_copy = copy.deepcopy(d)
+    d_copy["a"] = 0
+    return d_copy
 
 
 @smart_args
