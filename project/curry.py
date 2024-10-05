@@ -26,6 +26,8 @@ def uncurry_explicit(function, arity):
     def uncurry_helper(*args):
         if len(args) != arity:
             raise TypeError(f"Expected {arity} arguments, received {len(args)}")
+        if arity == 0:
+            return function()
         result = function
         for arg in args:
             result = result(arg)
