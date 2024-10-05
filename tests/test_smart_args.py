@@ -14,6 +14,7 @@ def get_random_number():
 
 @smart_args
 def check_isolation(*, d=Isolated()):
+    d = d.copy()
     d["a"] = 0
     return d
 
