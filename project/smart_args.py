@@ -9,7 +9,7 @@ class Isolated:
 
 class Evaluated:
     def __init__(self, func):
-        assert callable(func), "Evaluated требует функцию без аргументов"
+        assert callable(func), "Evaluated requires a function with no arguments"
         self.func = func
 
 
@@ -21,7 +21,10 @@ def smart_args(func):
         for name, default in func_spec.kwonlydefaults.items():
             if name not in kwargs:
                 if isinstance(default, Isolated):
-                    kwargs[name] = copy.deepcopy(kwargs[name] if name in kwargs else {})
+                    assert (
+                        name in kwargs
+                    ), f"Isolated requires a passed argument for{name}"
+                    kwargs[name] = copy.deepcopy(kwargs[name])
                 elif isinstance(default, Evaluated):
                     kwargs[name] = default.func()
                 else:
