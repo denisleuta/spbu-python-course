@@ -2,6 +2,40 @@ from functools import wraps
 
 
 def curry_explicit(function, arity):
+    """
+    Returns a curried version of the given function.
+
+    Currying is a technique where a function is transformed into a sequence
+    of functions, each taking a single argument. This allows for partial
+    application of the function's arguments.
+
+    Parameters:
+    ----------
+    function : callable
+        The function to be curried.
+    arity : int
+        The number of arguments the function accepts. Must be non-negative.
+
+    Raises:
+    ------
+    ValueError
+        If `arity` is negative.
+    TypeError
+        If more arguments than expected are passed during invocation.
+
+    Returns:
+    -------
+    callable
+        A curried version of the input function.
+
+    Example:
+    --------
+    def add(a, b):
+        return a + b
+
+    curried_add = curry_explicit(add, 2)
+    result = curried_add(1)(2)  # Returns 3
+    """
     if arity < 0:
         raise ValueError("Arity will be not is negative")
 
@@ -19,6 +53,39 @@ def curry_explicit(function, arity):
 
 
 def uncurry_explicit(function, arity):
+    """
+    Converts a curried function back into a regular function.
+
+    This function takes a curried function and returns a new function
+    that accepts all arguments at once, rather than one at a time.
+
+    Parameters:
+    ----------
+    function : callable
+        The curried function to be uncurried.
+    arity : int
+        The number of arguments the curried function accepts. Must be non-negative.
+
+    Raises:
+    ------
+    ValueError
+        If `arity` is negative.
+    TypeError
+        If the number of provided arguments does not match the expected arity.
+
+    Returns:
+    -------
+    callable
+        A function that accepts all arguments at once.
+
+    Example:
+    --------
+    def curried_add(a):
+        return lambda b: a + b
+
+    uncurried_add = uncurry_explicit(curried_add, 2)
+    result = uncurried_add(1, 2)  # Returns 3
+    """
     if arity < 0:
         raise ValueError("Arity will be not is negative")
 
