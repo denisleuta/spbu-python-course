@@ -3,16 +3,16 @@ import inspect
 from functools import wraps
 
 
-class Isolated:
-    pass
-
-
 class Evaluated:
     def __init__(self, func):
         self.func = func
 
     def __call__(self):
         return self.func()
+
+
+class Isolated:
+    pass
 
 
 def smart_args(func):
@@ -30,9 +30,13 @@ def smart_args(func):
             if isinstance(default, Evaluated):
                 bound_arguments.arguments[name] = default()
             elif isinstance(default, Isolated):
-                raise ValueError(
-                    f"Argument '{name}' must be provided and cannot use Isolated."
-                )
+                # Create a deep copy of the provided argument
+                if name in kwargs:
+                    bound_arguments.arguments[name] = copy.deepcopy(kwargs[name])
+                else:
+                    raise ValueError(
+                        f"Argument '{name}' must be provided and cannot use Isolated."
+                    )
             elif isinstance(default, dict):  # Example for mutable types
                 bound_arguments.arguments[name] = copy.deepcopy(default)
 
