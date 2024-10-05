@@ -1,6 +1,6 @@
 import copy
-from functools import wraps
 import inspect
+from functools import wraps
 
 
 class Isolated:
@@ -9,24 +9,33 @@ class Isolated:
 
 class Evaluated:
     def __init__(self, func):
-        assert callable(func), "Evaluated requires a function with no arguments"
         self.func = func
 
-
-import inspect
-from functools import wraps
+    def __call__(self):
+        return self.func()
 
 
 def smart_args(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        func_spec = inspect.getfullargspec(func)
+        # Get the signature of the function
+        sig = inspect.signature(func)
+        bound_arguments = sig.bind_partial(*args, **kwargs)
 
-        if func_spec.kwonlydefaults:
-            for name, default in func_spec.kwonlydefaults.items():
-                if name not in kwargs:
-                    kwargs[name] = default
+        for name, param in sig.parameters.items():
+            if name in bound_arguments.arguments:
+                continue  # Argument is provided by the user
 
-        return func(*args, **kwargs)
+            default = param.default
+            if isinstance(default, Evaluated):
+                bound_arguments.arguments[name] = default()
+            elif isinstance(default, Isolated):
+                raise ValueError(
+                    f"Argument '{name}' must be provided and cannot use Isolated."
+                )
+            elif isinstance(default, dict):  # Example for mutable types
+                bound_arguments.arguments[name] = copy.deepcopy(default)
+
+        return func(*bound_arguments.args, **bound_arguments.kwargs)
 
     return wrapper
