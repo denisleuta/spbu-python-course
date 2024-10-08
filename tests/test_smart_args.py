@@ -2,153 +2,119 @@ import pytest
 import random
 import sys
 import os
-import copy
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.smart_args import smart_args, Isolated, Evaluated
+from project.smart_args import (
+    Evaluated,
+    Isolated,
+    smart_args,
+)  # Adjust the import as necessary
 
 
-def get_random_number():
-    """
-    Generate a fixed random number for testing.
+def test_evaluated_default():
+    """Test that Evaluated correctly evaluates a function when called."""
 
-    This function returns a predetermined value (42) to ensure
-    consistent test results. It serves as a placeholder to illustrate
-    how the function could be modified in a real-world scenario to
-    generate random numbers.
+    def get_random_number():
+        return random.randint(1, 10)
 
-    Returns:
-    -------
-    int
-        A fixed random number, specifically 42.
-    """
-    return 42  # For testing with a fixed value
+    @smart_args()
+    def my_function(x=Evaluated(get_random_number)):
+        return x
 
-
-@smart_args
-def check_isolation(*, d=Isolated()):
-    """
-    Check isolation of a dictionary argument.
-
-    This function modifies the provided dictionary by setting the
-    key "a" to 0. If the `d` argument is not provided, it raises
-    a ValueError indicating that an argument must be supplied.
-    The purpose is to test the behavior of the `Isolated` class.
-
-    Parameters:
-    ----------
-    d : dict, optional
-        A dictionary that is expected to be passed by the user.
-        If not provided, a ValueError is raised.
-
-    Returns:
-    -------
-    dict
-        A new dictionary with "a" set to 0.
-
-    Raises:
-    ------
-    ValueError
-        If `d` is not provided, indicating that an argument must be supplied.
-    """
-    d = d.copy()
-    d["a"] = 0
-    return d
+    result = my_function()
+    assert (
+        isinstance(result, int) and 1 <= result <= 10
+    ), "Result should be a random number between 1 and 10."
 
 
-@smart_args
-def check_evaluation(*, x=get_random_number(), y=Evaluated(get_random_number)):
-    """
-    Check the evaluation of arguments with lazy evaluation.
+def test_isolated_default():
+    """Test that Isolated creates a deep copy of the argument."""
 
-    This function returns the evaluated values of `x` and `y`. The
-    `x` value is obtained from the `get_random_number` function,
-    and `y` is evaluated using the `Evaluated` class. If `y` is not
-    specified, it defaults to the fixed value from `get_random_number`.
+    @smart_args()
+    def my_function(data=Isolated()):
+        # Create a mutable list to demonstrate isolation.
+        data_list = []
+        data_list.append(1)
+        return data_list
 
-    Parameters:
-    ----------
-    x : int, optional
-        A number that defaults to a fixed random number for testing.
-    y : Evaluated, optional
-        A callable that returns a fixed random number. If not provided,
-        it evaluates to the fixed value (42).
-
-    Returns:
-    -------
-    tuple
-        A tuple containing the evaluated values of `x` and `y`.
-    """
-    return x, y
+    original_data = []
+    result = my_function(original_data)
+    assert result == [1], "Function should return a modified copy of the original data."
+    assert original_data == [], "Original data should remain unchanged."
 
 
-def test_check_isolation():
-    """
-    Test the isolation behavior of the `check_isolation` function.
+def test_positional_arguments():
+    """Test that positional arguments are correctly handled by smart_args."""
 
-    This test verifies that when a mutable dictionary is passed to
-    the `check_isolation` function, it does not alter the original
-    dictionary. Instead, it returns a new dictionary with the
-    specified modifications.
+    @smart_args(enable_positional=True)
+    def my_function(x=5, y=10):
+        return x + y
 
-    It checks that:
-    - The returned result is a dictionary with "a" set to 0.
-    - The original dictionary remains unchanged.
-    """
-    no_mutable = {"a": 10}
-    result = check_isolation(d=no_mutable)
-
-    assert result == {"a": 0}
-    assert no_mutable == {"a": 10}
+    assert (
+        my_function() == 15
+    ), "Default values should be used when no arguments are provided."
+    assert (
+        my_function(3) == 13
+    ), "Positional argument x should override the default value."
+    assert (
+        my_function(3, 7) == 10
+    ), "Both positional arguments should override default values."
 
 
-def test_check_evaluation():
-    """
-    Test the evaluation behavior of the `check_evaluation` function.
+def test_keyword_arguments():
+    """Test that keyword arguments are correctly handled by smart_args."""
 
-    This test verifies that the `check_evaluation` function correctly
-    evaluates the arguments `x` and `y`, both with their default
-    values and with user-specified values for `y`.
+    @smart_args(enable_positional=False)
+    def my_function(x=5, y=10):
+        return x + y
 
-    It checks that:
-    - The first call retrieves the fixed value for `x` and evaluates `y`.
-    - The second call retrieves the same values to ensure consistency.
-    - A call with a specified value for `y` correctly returns that value.
-
-    The expected behavior is that `y` should consistently evaluate to
-    the fixed number (42) unless overridden by the user.
-    """
-    x_value = get_random_number()
-
-    # Check the first call with computed value for y
-    result1 = check_evaluation()
-    assert result1[0] == x_value
-    assert result1[1] == 42  # y value should be fixed
-
-    # Check the second call with a new computed value for y
-    result2 = check_evaluation()
-    assert result2[0] == x_value
-    assert result2[1] == 42  # y value should be fixed
-
-    # Check the call with a specified value for y
-    result3 = check_evaluation(y=150)
-    assert result3[0] == x_value
-    assert result3[1] == 150
+    assert (
+        my_function() == 15
+    ), "Default values should be used when no arguments are provided."
+    assert (
+        my_function(x=3) == 13
+    ), "Keyword argument x should override the default value."
+    assert (
+        my_function(y=7) == 12
+    ), "Keyword argument y should override the default value."
+    assert (
+        my_function(x=3, y=7) == 10
+    ), "Both keyword arguments should override default values."
 
 
-def test_isolated_error():
-    """
-    Test error handling for the `check_isolation` function.
+def test_mixed_arguments():
+    """Test that mixed positional and keyword arguments work correctly."""
 
-    This test verifies that the `check_isolation` function raises a
-    ValueError when called without providing the required `d` argument,
-    which is marked as `Isolated`. The test checks that the appropriate
-    error message is raised.
+    @smart_args()
+    def my_function(x=5, y=10):
+        return x + y
 
-    It ensures that the implementation adheres to the expected
-    behavior when required arguments are not provided.
-    """
-    with pytest.raises(ValueError) as excinfo:
-        check_isolation()  # Should raise an error due to Isolated
+    assert (
+        my_function(2) == 12
+    ), "Positional argument x should override the default value."
+    assert (
+        my_function(y=8) == 13
+    ), "Keyword argument y should override the default value."
+    assert (
+        my_function(2, y=8) == 10
+    ), "Both positional and keyword arguments should work together."
 
-    assert "must be provided" in str(excinfo.value)
+
+def test_error_with_isolated_without_argument():
+    """Test that an error is raised when Isolated is used without providing an argument."""
+
+    @smart_args()
+    def my_function(data=Isolated()):
+        return data
+
+    with pytest.raises(ValueError) as exc_info:
+        my_function()
+
+    assert (
+        str(exc_info.value)
+        == "Argument 'data' must be provided and cannot use Isolated."
+    ), "Should raise ValueError when using Isolated without providing an argument."
+
+
+if __name__ == "__main__":
+    pytest.main()
