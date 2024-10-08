@@ -42,24 +42,24 @@ def test_cache():
     2, meaning that once the cache reaches this size,
     the least recently used item will be removed.
 
-    The test checks the following scenarios:
-    - The first call to `add(1, 2)` calculates and caches the result.
-    - The second call to `add(1, 2)` retrieves the result from the cache.
-    - Calls to `add(3, 4)` and `add(5, 6)` calculate and cache their results.
-    - The cache is expected to contain results for the last two unique calls.
-    - Finally, when `add(1, 2)` is called again after the cache has been cleared,
-      it should recalculate the result instead of retrieving it from the cache.
-
-    Example:
-    --------
-    The sequence of assertions in this test checks that:
-    - `add(1, 2)` results in `3`
-    - Repeated calls to `add(1, 2)` use the cache and still return `3`
-    - New unique calls like `add(3, 4)` and `add(5, 6)` return `7` and `11`, respectively.
-    - After the cache is cleared, calling `add(1, 2)` again should recalculate `3`.
+    Test that the cache evicts the least recently used item
+    when the maximum cache size is reached.
     """
-    assert add(1, 2) == 3
-    assert add(1, 2) == 3  # From the cache
-    assert add(3, 4) == 7
-    assert add(5, 6) == 11
-    assert add(1, 2) == 3  # This is not from cache; cache has been cleared
+    assert add(1, 2) == 3  # Cache: {(1, 2): 3}
+    assert add(3, 4) == 7  # Cache: {(1, 2): 3, (3, 4): 7}
+    assert add(5, 6) == 11  # Cache: {(1, 2): 3, (3, 4): 7, (5, 6): 11} -> Evicts (1, 2)
+
+    # Now (1, 2) should be evicted
+    assert add(1, 2) == 3  # Recalculates since (1, 2) was evicted
+    assert add(3, 4) == 7  # Should still be cached
+    assert add(5, 6) == 11  # Should still be cached
+
+
+def test_different_argument_types():
+    """
+    Test the `add` function with different types of numerical inputs.
+    """
+    assert add(1.5, 2.5) == 4.0  # Float inputs
+    assert add(-1, -2) == -3  # Negative integers
+    assert add(0, 0) == 0  # Zero inputs
+    assert add(1000000, 2000000) == 3000000  # Large integers
