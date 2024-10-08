@@ -27,14 +27,6 @@ def curry_explicit(function, arity):
     -------
     callable
         A curried version of the input function.
-
-    Example:
-    --------
-    def add(a, b):
-        return a + b
-
-    curried_add = curry_explicit(add, 2)
-    result = curried_add(1)(2)  # Returns 3
     """
     if arity < 0:
         raise ValueError("Arity will be not is negative")
@@ -77,14 +69,6 @@ def uncurry_explicit(function, arity):
     -------
     callable
         A function that accepts all arguments at once.
-
-    Example:
-    --------
-    def curried_add(a):
-        return lambda b: a + b
-
-    uncurried_add = uncurry_explicit(curried_add, 2)
-    result = uncurried_add(1, 2)  # Returns 3
     """
     if arity < 0:
         raise ValueError("Arity will be not is negative")

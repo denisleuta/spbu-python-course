@@ -23,19 +23,6 @@ def cache_results(max_size=0):
     -------
     function
         A wrapped version of the original function that caches its results.
-
-    Example:
-    --------
-    @cache_results(max_size=5)
-    def expensive_computation(x, y):
-        # Some time-consuming calculations
-        return x + y
-
-    The first call to `expensive_computation(1, 2)` will execute the function,
-    and subsequent calls with the same arguments will return the cached result.
-    If the cache exceeds the specified `max_size`, the oldest cached
-    result will be discarded.
-
     """
 
     def decorator(func):
