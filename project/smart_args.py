@@ -43,13 +43,13 @@ def smart_args(enable_positional: bool = True) -> Callable:
     def decorator(func: Callable) -> Callable:
         func_spec = inspect.getfullargspec(func)
         arg_names: List[str] = func_spec.args
-        defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = func_spec.defaults
+        defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = (
+            list(func_spec.defaults) if func_spec.defaults is not None else []
+        )
 
-        # Handle case where defaults might be None
-        if defaults is None:
-            defaults = []
-
-        default_offset: int = len(arg_names) - len(defaults)
+        default_offset: int = (
+            len(arg_names) - len(defaults) if defaults else len(arg_names)
+        )
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -75,7 +75,7 @@ def smart_args(enable_positional: bool = True) -> Callable:
             # Handle default values and special types like Evaluated and Isolated
             for i, name in enumerate(arg_names):
                 if name not in bound_arguments:
-                    if i >= default_offset:
+                    if i >= default_offset and defaults is not None:
                         default_value = defaults[i - default_offset]
                         if isinstance(default_value, Evaluated):
                             bound_arguments[name] = default_value()
@@ -87,7 +87,7 @@ def smart_args(enable_positional: bool = True) -> Callable:
                             bound_arguments[name] = copy.deepcopy(default_value)
 
             # Extract arguments in the correct order for the function call
-            func_args = [bound_arguments.get(arg, None) for arg in arg_names]
+            func_args = [bound_arguments.get(arg) for arg in arg_names]
             return func(*func_args)
 
         return wrapper
