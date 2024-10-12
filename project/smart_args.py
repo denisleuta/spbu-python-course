@@ -1,7 +1,7 @@
 import copy
 import inspect
 from functools import wraps
-from typing import Any, Callable, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union, Dict
 
 
 class Evaluated:
@@ -16,7 +16,6 @@ class Evaluated:
         self.func = func
 
     def __call__(self) -> Any:
-        # Call the function each time it's invoked
         return self.func()
 
 
@@ -39,37 +38,23 @@ def smart_args(enable_positional: bool = True) -> Callable:
 
     Returns:
         Callable: A decorated function with enhanced argument handling.
-
-    The decorator ensures:
-        - Arguments marked with `Evaluated` are evaluated lazily.
-        - Arguments marked with `Isolated` must be passed explicitly and will raise an error if not provided.
-        - Default arguments are deep-copied if necessary to avoid unwanted shared state.
     """
 
     def decorator(func: Callable) -> Callable:
         func_spec = inspect.getfullargspec(func)
         arg_names: List[str] = func_spec.args
-        defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = (
-            func_spec.defaults or []
-        )
+        defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = func_spec.defaults
+
+        # Handle case where defaults might be None
+        if defaults is None:
+            defaults = []
+
         default_offset: int = len(arg_names) - len(defaults)
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            """
-            Wrapper function that intelligently binds arguments and applies defaults.
+            bound_arguments: Dict[str, Any] = {}
 
-            Args:
-                *args: Positional arguments to be passed to the decorated function.
-                **kwargs: Keyword arguments to be passed to the decorated function.
-
-            Returns:
-                Any: The result of the decorated function, with arguments processed.
-
-            Raises:
-                ValueError: If an argument marked as `Isolated` is not passed explicitly.
-            """
-            bound_arguments: dict[str, Any] = {}
             # Handle positional arguments if enabled
             if enable_positional:
                 for idx, value in enumerate(args):
