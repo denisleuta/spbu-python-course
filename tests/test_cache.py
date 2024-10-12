@@ -6,60 +6,63 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from project.cache import cache_results
 
 
-@cache_results(2)
-def add(x, y):
-    """
-    Add two numbers together.
-
-    This function takes two numerical inputs and returns their sum.
-    The results of this function are cached to improve performance
-    for frequently called inputs, with a maximum cache size defined
-    by the decorator.
-
-    Parameters:
-    ----------
-    x : int or float
-        The first number to be added.
-    y : int or float
-        The second number to be added.
-
-    Returns:
-    -------
-    int or float
-        The sum of `x` and `y`.
-    """
-    return x + y
+@cache_results(max_size=3)
+def add(a, b):
+    return a + b
 
 
-def test_cache():
-    """
-    Test the caching functionality of the `add` function.
-
-    This test verifies that the `add` function correctly caches
-    results based on its input arguments, ensuring that repeated
-    calls with the same arguments return the cached result
-    instead of recalculating. The maximum cache size is set to
-    2, meaning that once the cache reaches this size,
-    the least recently used item will be removed.
-
-    Test that the cache evicts the least recently used item
-    when the maximum cache size is reached.
-    """
-    assert add(1, 2) == 3  # Cache: {(1, 2): 3}
-    assert add(3, 4) == 7  # Cache: {(1, 2): 3, (3, 4): 7}
-    assert add(5, 6) == 11  # Cache: {(1, 2): 3, (3, 4): 7, (5, 6): 11} -> Evicts (1, 2)
-
-    # Now (1, 2) should be evicted
-    assert add(1, 2) == 3  # Recalculates since (1, 2) was evicted
-    assert add(3, 4) == 7  # Should still be cached
-    assert add(5, 6) == 11  # Should still be cached
+@cache_results(max_size=3)
+def count_elements(collection):
+    return len(collection)
 
 
-def test_different_argument_types():
-    """
-    Test the `add` function with different types of numerical inputs.
-    """
-    assert add(1.5, 2.5) == 4.0  # Float inputs
-    assert add(-1, -2) == -3  # Negative integers
-    assert add(0, 0) == 0  # Zero inputs
-    assert add(1000000, 2000000) == 3000000  # Large integers
+def test_cache_hit_miss(capfd):
+    assert add(1, 2) == 3
+    captured = capfd.readouterr()
+    assert "Cache miss" in captured.out
+
+    assert add(1, 2) == 3
+    captured = capfd.readouterr()
+    assert "Cache hit" in captured.out
+
+    assert add(2, 3) == 5
+    captured = capfd.readouterr()
+    assert "Cache miss" in captured.out
+
+
+def test_cache_builtin_function():
+    # Test cache with Python built-in function (sum)
+    @cache_results(max_size=2)
+    def built_in_sum(values):
+        return sum(values)
+
+    assert built_in_sum([1, 2, 3]) == 6  # Cache miss
+    assert built_in_sum([1, 2, 3]) == 6  # Cache hit
+    assert built_in_sum([4, 5]) == 9  # Cache miss
+
+
+def test_cache_non_hashable_arguments():
+    # Test cache with non-hashable argument (list)
+    @cache_results(max_size=2)
+    def list_sum(collection):
+        return sum(collection)
+
+    assert list_sum([1, 2, 3]) == 6  # Cache miss
+    assert list_sum([1, 2, 3]) == 6  # Cache hit
+
+
+def test_cache_iteration_tracking():
+    iterations = []
+
+    @cache_results(max_size=3)
+    def track_iterations(a, b):
+        result = a + b
+        iterations.append((a, b))
+        return result
+
+    track_iterations(1, 2)  # 1st call
+    track_iterations(2, 3)  # 2nd call
+    track_iterations(3, 4)  # 3rd call
+    track_iterations(4, 5)  # Cache limit reached, 1st call evicted
+
+    assert len(iterations) == 4  # Ensure each call is tracked

@@ -12,8 +12,6 @@ from project.smart_args import (
 
 
 def test_evaluated_default():
-    """Test that Evaluated correctly evaluates a function when called."""
-
     def get_random_number():
         return random.randint(1, 10)
 
@@ -21,10 +19,18 @@ def test_evaluated_default():
     def my_function(x=Evaluated(get_random_number)):
         return x
 
-    result = my_function()
+    # Call the function multiple times to ensure different results.
+    result1 = my_function()
+    result2 = my_function()
+
+    # Assert that the results are different
     assert (
-        isinstance(result, int) and 1 <= result <= 10
-    ), "Result should be a random number between 1 and 10."
+        isinstance(result1, int) and 1 <= result1 <= 10
+    ), "Result1 should be a random number between 1 and 10."
+    assert (
+        isinstance(result2, int) and 1 <= result2 <= 10
+    ), "Result2 should be a random number between 1 and 10."
+    assert result1 != result2, "Results should differ for each function call."
 
 
 def test_isolated_default():
@@ -68,6 +74,7 @@ def test_keyword_arguments():
     def my_function(x=5, y=10):
         return x + y
 
+    # Check the use of keyword arguments
     assert (
         my_function() == 15
     ), "Default values should be used when no arguments are provided."
@@ -80,6 +87,18 @@ def test_keyword_arguments():
     assert (
         my_function(x=3, y=7) == 10
     ), "Both keyword arguments should override default values."
+
+    @smart_args(enable_positional=True)
+    def my_function_positional(x=5, y=10):
+        return x + y
+
+    # Test that the positional argument overrides the default value
+    assert (
+        my_function_positional(3) == 13
+    ), "Positional argument should override the default value."
+    assert (
+        my_function_positional(3, 7) == 10
+    ), "Both positional arguments should override default values."
 
 
 def test_mixed_arguments():
@@ -112,9 +131,24 @@ def test_error_with_isolated_without_argument():
 
     assert (
         str(exc_info.value)
-        == "Argument 'data' must be provided and cannot use Isolated."
+        == "Argument 'data' must be provided explicitly and cannot use Isolated."
     ), "Should raise ValueError when using Isolated without providing an argument."
 
 
-if __name__ == "__main__":
-    pytest.main()
+def test_evaluated_and_isolated_combined():
+    """Test that using Evaluated and Isolated together raises an error."""
+
+    def get_random_number():
+        return random.randint(1, 10)
+
+    @smart_args()
+    def my_function(x=Evaluated(get_random_number), y=Isolated()):
+        return x, y
+
+    # Check that an error is raised when using Isolated without providing an argument
+    with pytest.raises(ValueError) as exc_info:
+        my_function()  # Should raise an error for Isolated
+    assert (
+        str(exc_info.value)
+        == "Argument 'y' must be provided explicitly and cannot use Isolated."
+    ), "Should raise ValueError when using Isolated without providing an argument."

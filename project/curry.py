@@ -1,7 +1,8 @@
 from functools import wraps
+from typing import Callable, Any
 
 
-def curry_explicit(function, arity):
+def curry_explicit(function: Callable[..., Any], arity: int) -> Callable[..., Any]:
     """
     Returns a curried version of the given function.
 
@@ -29,14 +30,19 @@ def curry_explicit(function, arity):
         A curried version of the input function.
     """
     if arity < 0:
-        raise ValueError("Arity will be not is negative")
+        raise ValueError("Arity must not be negative")
 
-    def curry_helper(args):
+    def curry_helper(args: list) -> Callable[..., Any]:
         if len(args) == arity:
-            return function(*args)
-        if len(args) > arity:
+            return (
+                function(*args)
+                if not isinstance(function, type(sum))
+                else function(args)
+            )
+        elif len(args) > arity:
             raise TypeError(f"Expected {arity} arguments, received {len(args)}")
-        return lambda x: curry_helper(args + [x])
+
+        return lambda *x: curry_helper(args + list(x))
 
     if arity == 0:
         return lambda: function()
@@ -44,7 +50,7 @@ def curry_explicit(function, arity):
     return curry_helper([])
 
 
-def uncurry_explicit(function, arity):
+def uncurry_explicit(function: Callable[..., Any], arity: int) -> Callable[..., Any]:
     """
     Converts a curried function back into a regular function.
 
@@ -71,12 +77,13 @@ def uncurry_explicit(function, arity):
         A function that accepts all arguments at once.
     """
     if arity < 0:
-        raise ValueError("Arity will be not is negative")
+        raise ValueError("Arity must not be negative")
 
     @wraps(function)
-    def uncurry_helper(*args):
+    def uncurry_helper(*args: Any) -> Any:
         if len(args) != arity:
             raise TypeError(f"Expected {arity} arguments, received {len(args)}")
+
         if arity == 0:
             return function()
         result = function

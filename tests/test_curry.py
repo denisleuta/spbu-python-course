@@ -92,3 +92,60 @@ def test_uncurry_zero_arity():
     f = curry_explicit(lambda: 42, 0)
     g = uncurry_explicit(f, 0)
     assert g() == 42
+
+
+def test_curry_and_uncurry_built_in_functions():
+    """
+    Test currying and uncurrying of built-in functions.
+    """
+
+    # Test the sum function with arity 2
+    curried_sum = curry_explicit(sum, 2)
+    assert curried_sum(1)(2) == 3  # Check partial application
+    assert curried_sum(1, 2) == 3  # Check multiple argument application
+
+    # Test the max function with arity 2
+    curried_max = curry_explicit(max, 2)
+    assert curried_max(1)(2) == 2  # Check partial application
+    assert curried_max(1, 2) == 2  # Check multiple argument application
+
+    # Test the min function with arity 2
+    curried_min = curry_explicit(min, 2)
+    assert curried_min(1)(2) == 1  # Check partial application
+    assert curried_min(1, 2) == 1  # Check multiple argument application
+
+    # Check uncurry for the sum function
+    uncurried_sum = uncurry_explicit(curried_sum, 2)
+    assert uncurried_sum(1, 2) == 3
+
+    # Check uncurry for the max function
+    uncurried_max = uncurry_explicit(curried_max, 2)
+    assert uncurried_max(1, 2) == 2
+
+    # Check uncurry for the min function
+    uncurried_min = uncurry_explicit(curried_min, 2)
+    assert uncurried_min(1, 2) == 1
+
+
+def test_exceptions():
+    """
+    Test exception handling for curry and uncurry functions.
+    """
+
+    # Test that ValueError is raised for negative arity
+    with pytest.raises(ValueError):
+        curry_explicit(sum, -1)
+
+    # Test that TypeError is raised when more arguments are passed than expected
+    curried_sum = curry_explicit(sum, 2)  # Define curried_sum again for scope
+    with pytest.raises(TypeError):
+        curried_sum(1, 2, 3)  # Passing more arguments than expected
+
+    # Test that ValueError is raised for negative arity in uncurry
+    with pytest.raises(ValueError):
+        uncurry_explicit(curried_sum, -1)
+
+    # Test that TypeError is raised when not enough arguments are passed to uncurried function
+    uncurried_sum = uncurry_explicit(curried_sum, 2)  # Define uncurried_sum for scope
+    with pytest.raises(TypeError):
+        uncurried_sum(1)  # Passing insufficient arguments
