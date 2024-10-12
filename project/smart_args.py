@@ -1,7 +1,7 @@
 import copy
 import inspect
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, List, Optional, Union
 
 
 class Evaluated:
@@ -16,6 +16,7 @@ class Evaluated:
         self.func = func
 
     def __call__(self) -> Any:
+        # Call the function each time it's invoked
         return self.func()
 
 
@@ -47,9 +48,11 @@ def smart_args(enable_positional: bool = True) -> Callable:
 
     def decorator(func: Callable) -> Callable:
         func_spec = inspect.getfullargspec(func)
-        arg_names = func_spec.args
-        defaults = func_spec.defaults or []
-        default_offset = len(arg_names) - len(defaults)
+        arg_names: List[str] = func_spec.args
+        defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = (
+            func_spec.defaults or []
+        )
+        default_offset: int = len(arg_names) - len(defaults)
 
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -66,7 +69,8 @@ def smart_args(enable_positional: bool = True) -> Callable:
             Raises:
                 ValueError: If an argument marked as `Isolated` is not passed explicitly.
             """
-            bound_arguments = {}
+            bound_arguments: dict[str, Any] = {}
+            # Handle positional arguments if enabled
             if enable_positional:
                 for idx, value in enumerate(args):
                     if idx < len(arg_names):
@@ -80,8 +84,10 @@ def smart_args(enable_positional: bool = True) -> Callable:
                             )
                         bound_arguments[arg_names[idx]] = value
 
+            # Update with keyword arguments
             bound_arguments.update(kwargs)
 
+            # Handle default values and special types like Evaluated and Isolated
             for i, name in enumerate(arg_names):
                 if name not in bound_arguments:
                     if i >= default_offset:
@@ -95,6 +101,7 @@ def smart_args(enable_positional: bool = True) -> Callable:
                         else:
                             bound_arguments[name] = copy.deepcopy(default_value)
 
+            # Extract arguments in the correct order for the function call
             func_args = [bound_arguments.get(arg, None) for arg in arg_names]
             return func(*func_args)
 
