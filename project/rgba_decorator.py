@@ -1,5 +1,7 @@
 from typing import Generator, Tuple
 
+TOTAL_COMBINATIONS = 256 * 256 * 256 * 51
+
 
 def get_rgba_element(i: int) -> Tuple[int, int, int, int]:
     """
@@ -15,11 +17,9 @@ def get_rgba_element(i: int) -> Tuple[int, int, int, int]:
     Raises:
         IndexError: If the index is out of range.
     """
-    total_combinations = 256 * 256 * 256 * 51  # Total RGBA combinations
-    if i >= total_combinations or i < 0:
+    if not (0 <= i < TOTAL_COMBINATIONS):
         raise IndexError("Index out of range")
 
-    # Calculate the RGBA components based on the index
     r = (i // (256 * 256 * 51)) % 256
     g = (i // (256 * 51)) % 256
     b = (i // 51) % 256
