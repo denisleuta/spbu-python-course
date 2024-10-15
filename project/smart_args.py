@@ -43,9 +43,15 @@ def smart_args(enable_positional: bool = True) -> Callable:
     def decorator(func: Callable) -> Callable:
         func_spec = inspect.getfullargspec(func)
         arg_names: List[str] = func_spec.args
+        kwonly_names: List[
+            str
+        ] = func_spec.kwonlyargs  # Добавлено для keyword-only аргументов
         defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = (
             list(func_spec.defaults) if func_spec.defaults is not None else []
         )
+        kwonly_defaults: Dict[str, Any] = (
+            func_spec.kwonlydefaults or {}
+        )  # Используем пустой словарь по умолчанию
 
         default_offset: int = (
             len(arg_names) - len(defaults) if defaults else len(arg_names)
@@ -63,16 +69,17 @@ def smart_args(enable_positional: bool = True) -> Callable:
                             raise ValueError(
                                 f"Argument '{arg_names[idx]}' must be provided explicitly and cannot use Isolated."
                             )
-                        elif isinstance(value, Evaluated):
-                            raise ValueError(
-                                f"Argument '{arg_names[idx]}' must be provided explicitly and cannot use Evaluated."
-                            )
                         bound_arguments[arg_names[idx]] = value
+            else:
+                if args:
+                    raise TypeError(
+                        f"Positional arguments are not allowed for {func.__name__}, please use keyword arguments."
+                    )
 
             # Update with keyword arguments
             bound_arguments.update(kwargs)
 
-            # Handle default values and special types like Evaluated and Isolated
+            # Handle default values and special types like Evaluated and Isolated for normal args
             for i, name in enumerate(arg_names):
                 if name not in bound_arguments:
                     if i >= default_offset and defaults is not None:
@@ -86,9 +93,24 @@ def smart_args(enable_positional: bool = True) -> Callable:
                         else:
                             bound_arguments[name] = copy.deepcopy(default_value)
 
+            # Handle default values and special types for keyword-only arguments
+            for name in kwonly_names:
+                if name not in bound_arguments and name in kwonly_defaults:
+                    bound_arguments[name] = kwonly_defaults[name]
+
+            # Ensure all bound arguments are isolated
+            for name, value in bound_arguments.items():
+                if isinstance(value, Isolated):
+                    raise ValueError(
+                        f"Argument '{name}' must be provided explicitly and cannot use Isolated."
+                    )
+
             # Extract arguments in the correct order for the function call
             func_args = [bound_arguments.get(arg) for arg in arg_names]
-            return func(*func_args)
+            # Add keyword-only arguments as well
+            func_kwargs = {name: bound_arguments.get(name) for name in kwonly_names}
+
+            return func(*func_args, **func_kwargs)
 
         return wrapper
 

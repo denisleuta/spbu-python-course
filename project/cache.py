@@ -16,6 +16,7 @@ def make_hashable(obj: Any) -> Any:
 
 def cache_results(
     max_size: int = 0,
+    verbose: bool = False,
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for caching the results of a function based on its input arguments.
@@ -27,6 +28,8 @@ def cache_results(
         caching is unlimited. If the cache reaches this size,
         the least recently used item will be removed to make space
         for the new result.
+    verbose : bool, optional
+        If True, print cache hit/miss messages. Default is False.
 
     Returns:
     -------
@@ -44,9 +47,11 @@ def cache_results(
                 frozenset((k, make_hashable(v)) for k, v in kwargs.items()),
             )
             if key in cache:
-                print(f"Cache hit for args: {args}, kwargs: {kwargs}")
+                if verbose:
+                    print(f"Cache hit for args: {args}, kwargs: {kwargs}")
                 return cache[key]
-            print(f"Cache miss: {args}, kwargs: {kwargs} - calculating")
+            if verbose:
+                print(f"Cache miss: {args}, kwargs: {kwargs} - calculating")
             result = func(*args, **kwargs)
             if max_size > 0:
                 if len(cache) >= max_size:

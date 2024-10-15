@@ -34,15 +34,13 @@ def curry_explicit(function: Callable[..., Any], arity: int) -> Callable[..., An
 
     def curry_helper(args: list) -> Callable[..., Any]:
         if len(args) == arity:
-            return (
-                function(*args)
-                if not isinstance(function, type(sum))
-                else function(args)
-            )
+            if function is sum:
+                return sum(args)
+            return function(*args)
         elif len(args) > arity:
             raise TypeError(f"Expected {arity} arguments, received {len(args)}")
 
-        return lambda *x: curry_helper(args + list(x))
+        return lambda x: curry_helper(args + [x])
 
     if arity == 0:
         return lambda: function()

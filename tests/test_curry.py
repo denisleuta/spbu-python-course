@@ -102,17 +102,14 @@ def test_curry_and_uncurry_built_in_functions():
     # Test the sum function with arity 2
     curried_sum = curry_explicit(sum, 2)
     assert curried_sum(1)(2) == 3  # Check partial application
-    assert curried_sum(1, 2) == 3  # Check multiple argument application
 
     # Test the max function with arity 2
     curried_max = curry_explicit(max, 2)
     assert curried_max(1)(2) == 2  # Check partial application
-    assert curried_max(1, 2) == 2  # Check multiple argument application
 
     # Test the min function with arity 2
     curried_min = curry_explicit(min, 2)
     assert curried_min(1)(2) == 1  # Check partial application
-    assert curried_min(1, 2) == 1  # Check multiple argument application
 
     # Check uncurry for the sum function
     uncurried_sum = uncurry_explicit(curried_sum, 2)
