@@ -43,15 +43,13 @@ def smart_args(enable_positional: bool = True) -> Callable:
     def decorator(func: Callable) -> Callable:
         func_spec = inspect.getfullargspec(func)
         arg_names: List[str] = func_spec.args
-        kwonly_names: List[
-            str
-        ] = func_spec.kwonlyargs  # Добавлено для keyword-only аргументов
+        kwonly_names: List[str] = func_spec.kwonlyargs  # Add for keyword-only arguments
         defaults: Optional[List[Union[Evaluated, Isolated, Any]]] = (
             list(func_spec.defaults) if func_spec.defaults is not None else []
         )
         kwonly_defaults: Dict[str, Any] = (
             func_spec.kwonlydefaults or {}
-        )  # Используем пустой словарь по умолчанию
+        )  # Use empty dictionary
 
         default_offset: int = (
             len(arg_names) - len(defaults) if defaults else len(arg_names)

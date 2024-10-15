@@ -72,9 +72,9 @@ def test_cache_iteration_tracking(capfd):
         iterations.append((a, b))
         return result
 
-    track_iterations(1, 2)  # 1st call
-    track_iterations(2, 3)  # 2nd call
-    track_iterations(3, 4)  # 3rd call
+    track_iterations(1, 2)
+    track_iterations(2, 3)
+    track_iterations(3, 4)
 
     assert len(iterations) == 3
 
