@@ -1,12 +1,29 @@
 from typing import Generator, Tuple
+import itertools
 
 TOTAL_COMBINATIONS = 256 * 256 * 256 * 51
 
 
+def rgba_generator() -> Generator[Tuple[int, int, int, int], None, None]:
+    """
+    A generator that yields RGBA vectors where transparency (alpha)
+    takes even values between 0 and 100.
+
+    Yields:
+        Tuple[int, int, int, int]: The next RGBA color in the sequence.
+    """
+    return (
+        (r, g, b, a)
+        for r in range(256)
+        for g in range(256)
+        for b in range(256)
+        for a in range(0, 102, 2)
+    )
+
+
 def get_rgba_element(i: int) -> Tuple[int, int, int, int]:
     """
-    Returns the i-th RGBA vector by calculating its position
-    without generating all combinations.
+    Returns the i-th RGBA vector using the generator.
 
     Args:
         i (int): Index of the RGBA vector to retrieve.
@@ -20,43 +37,36 @@ def get_rgba_element(i: int) -> Tuple[int, int, int, int]:
     if not (0 <= i < TOTAL_COMBINATIONS):
         raise IndexError("Index out of range")
 
-    r = (i // (256 * 256 * 51)) % 256
-    g = (i // (256 * 51)) % 256
-    b = (i // 51) % 256
-    a = (i % 51) * 2  # Alpha only takes even values
-
-    return r, g, b, a
+    rgba_gen = rgba_generator()
+    return next(itertools.islice(rgba_gen, i, i + 1))
 
 
-def prime_generator(limit: int = 10000) -> Generator[int, None, None]:
+def prime_generator() -> Generator[int, None, None]:
     """
-    A generator that yields prime numbers using the Sieve of Eratosthenes method,
-    with an optional limit on how many primes to calculate.
-
-    Args:
-        limit (int): The maximum number of primes to generate.
+    A generator that yields prime numbers using the Sieve of Eratosthenes method.
+    This generator will continue indefinitely without a predefined limit.
 
     Yields:
-        int: The next prime number in the sequence, up to the limit.
+        int: The next prime number in the sequence.
     """
-    D = {}
+    d = {}
     q = 2
-    count = 0  # Keep track of how many primes have been generated
-    while count < limit:
-        if q not in D:
-            yield q  # q is prime
-            D[q * q] = [q]
-            count += 1
+    while True:
+        if q not in d:
+            yield q
+            d[q * q] = [q]
         else:
-            for p in D[q]:
-                D.setdefault(p + q, []).append(p)
-            del D[q]
+            for p in d[q]:
+                d.setdefault(p + q, []).append(p)
+            del d[q]
         q += 1
 
 
 def prime_decorator(func):
     """
     A decorator that takes a generator function and returns the k-th prime number.
+    It optimizes performance by using a single generator instance that continues
+    where it left off for sequential calls with increasing k values.
 
     Args:
         func (Callable): A generator function that yields prime numbers.
@@ -64,21 +74,29 @@ def prime_decorator(func):
     Returns:
         Callable[[int], int]: A wrapped function that returns the k-th prime.
     """
+    gen = None
+    primes = []
 
     def wrapper(k: int) -> int:
-        if not isinstance(k, int):  # Check if k is an integer
+        nonlocal gen
+
+        if not isinstance(k, int):
             raise TypeError("Index must be an integer.")
-        if k < 1:  # Check if k is positive
+        if k < 1:
             raise ValueError("Index must be a positive integer.")
 
-        gen = func()
-        for idx, prime in enumerate(gen, start=1):
-            if idx == k:
+        if gen is None:
+            gen = func()
+
+        if len(primes) >= k:
+            return primes[k - 1]
+
+        for prime in gen:
+            primes.append(prime)
+            if len(primes) == k:
                 return prime
 
-        raise ValueError(
-            "Prime number not found for the given index."
-        )  # Raise if k exceeds the number of primes
+        raise ValueError("Prime number not found for the given index.")
 
     return wrapper
 
@@ -91,4 +109,4 @@ def get_prime() -> Generator[int, None, None]:
     Returns:
         Generator[int, None, None]: A prime number generator.
     """
-    return prime_generator(limit=1000)
+    return prime_generator()

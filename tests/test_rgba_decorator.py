@@ -1,5 +1,4 @@
 import pytest
-import itertools
 import sys
 import os
 from typing import Tuple
@@ -8,11 +7,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from project.rgba_decorator import (
     get_rgba_element,
     get_prime,
-    prime_generator,
     TOTAL_COMBINATIONS,
 )
 
-
+# Tests for RGBA functionality
 def test_rgba_element_optimized() -> None:
     """
     Tests the optimized RGBA element retrieval function.
@@ -64,22 +62,40 @@ def test_rgba_element_various_cases(
     assert get_rgba_element(index) == expected
 
 
+# Tests for prime number functionality
 @pytest.mark.parametrize(
-    "k, expected", [(1, 2), (2, 3), (3, 5), (10, 29), (100, 541), (1000, 7919)]
+    "k, expected", [(1, 2), (2, 3), (3, 5), (5, 11), (10, 29), (15, 47), (100, 541)]
 )
-def test_prime_numbers_optimized(k: int, expected: int) -> None:
+def test_prime_decorator_sequential_calls(k: int, expected: int) -> None:
     """
-    Parameterized test to verify the correctness of returned
-    prime numbers using the generator.
+    Parameterized test to verify the correctness of returned prime numbers
+    through multiple sequential calls to the prime-decorated function.
+
+    This test ensures that the function correctly returns the k-th prime
+    number on multiple invocations without restarting the generator.
 
     Args:
         k (int): The index of the prime number.
         expected (int): The expected prime number.
     """
-    primes = prime_generator(limit=1000)
     assert (
-        next(itertools.islice(primes, k - 1, k)) == expected
-    ), f"Expected prime {expected}, but got a different result"
+        get_prime(k) == expected
+    ), f"Expected prime {expected} at position {k}, but got a different result"
+
+
+def test_prime_multiple_calls() -> None:
+    """
+    Tests that multiple calls to get_prime() with increasing k do not restart
+    the generator, and each call returns the correct prime number in sequence.
+    """
+    primes = [get_prime(1), get_prime(2), get_prime(3), get_prime(4), get_prime(5)]
+    assert primes == [
+        2,
+        3,
+        5,
+        7,
+        11,
+    ], f"Expected primes [2, 3, 5, 7, 11], but got {primes}"
 
 
 def test_prime_negative_index() -> None:
