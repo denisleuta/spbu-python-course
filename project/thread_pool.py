@@ -1,4 +1,21 @@
 import threading
+import concurrent.futures
+import itertools
+
+
+def sum_cartesian_product(sets):
+
+    cartesian_product = itertools.product(*sets)
+
+    def sum_combination(combination):
+        return sum(combination)
+
+    total_sum = 0
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        results = list(executor.map(sum_combination, cartesian_product))
+
+    total_sum = sum(results)
+    return total_sum
 
 
 class ThreadPool:
