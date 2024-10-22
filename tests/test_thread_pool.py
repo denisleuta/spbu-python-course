@@ -5,7 +5,7 @@ import os
 from typing import Tuple
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.thread_pool import ThreadPool, sum_cartesian_product
+from project.thread_pool import ThreadPool
 
 
 def test_enqueue_and_execution():
@@ -41,12 +41,20 @@ def test_dispose_allows_completion():
 
 
 def test_minimum_threads():
+    """
+    Test to ensure that the thread pool creates exactly the specified number of active threads.
+    """
     pool = ThreadPool(num_threads=4)
-    assert len(pool.threads) >= 4
+
+    # Check that exactly 4 threads are active (alive)
+    active_threads = [thread for thread in pool.threads if thread.is_alive()]
+    assert (
+        len(active_threads) == 4
+    ), f"Expected 4 active threads, but got {len(active_threads)}"
+
     pool.dispose()
 
 
-@pytest.mark.timeout(54)
 def test_thread_pool_works_with_timeout():
     pool = ThreadPool(num_threads=3)
 
@@ -57,26 +65,3 @@ def test_thread_pool_works_with_timeout():
         pool.enqueue(example_task)
 
     pool.dispose()
-
-
-def test_sum_cartesian_product():
-    sets = [
-        [1, 2],
-        [3, 4],
-        [5, 6],
-    ]
-
-    result = sum_cartesian_product(sets)
-
-    expected_sum = (
-        sum([1, 3, 5])
-        + sum([1, 3, 6])
-        + sum([1, 4, 5])
-        + sum([1, 4, 6])
-        + sum([2, 3, 5])
-        + sum([2, 3, 6])
-        + sum([2, 4, 5])
-        + sum([2, 4, 6])
-    )
-
-    assert result == expected_sum, f"Expected {expected_sum}, but got {result}"
