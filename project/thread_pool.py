@@ -12,7 +12,7 @@ class ThreadPool:
         :param num_threads: Number of threads in the pool.
         """
         self.num_threads = num_threads
-        self.tasks = []
+        self.tasks: List[Callable[[], None]] = []
         self.threads = []
         self.lock = threading.Lock()
         self.condition = threading.Condition(self.lock)
@@ -80,7 +80,6 @@ def sum_cartesian_product(sets: List[List[int]]) -> int:
     total_sum = 0
     # Parallel summation
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Map each combination to the summing function and gather results
         results = list(executor.map(sum_combination, cartesian_product))
 
     # Compute the total sum
