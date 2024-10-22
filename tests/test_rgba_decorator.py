@@ -10,6 +10,7 @@ from project.rgba_decorator import (
     TOTAL_COMBINATIONS,
 )
 
+
 # Tests for RGBA functionality
 def test_rgba_element_optimized() -> None:
     """

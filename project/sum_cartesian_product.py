@@ -2,6 +2,7 @@ import concurrent.futures
 import itertools
 from typing import List, Tuple
 
+
 def sum_cartesian_product(sets: List[List[int]]) -> int:
     """
     Computes the sum of the full Cartesian product of integer sets in parallel.
