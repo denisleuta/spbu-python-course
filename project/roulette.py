@@ -1,118 +1,98 @@
 import random
 
-class Wheel:
-    """Class to represent the roulette wheel."""
-    def __init__(self):
-        self.colors = ['Red', 'Black', 'Green']  # Green for the zero
-        self.numbers = list(range(0, 37))  # European roulette: numbers 0 to 36
-
-    def spin(self):
-        number = random.choice(self.numbers)
-        color = 'Green' if number == 0 else ('Red' if number % 2 == 0 else 'Black')
-        return number, color
-
 
 class Bet:
-    """Class to represent a bet."""
     def __init__(self, amount, bet_type, choice):
         self.amount = amount
         self.bet_type = bet_type
         self.choice = choice
 
-    def evaluate(self, outcome):
-        """Evaluate bet based on outcome."""
-        number, color = outcome
-        if self.bet_type == 'color' and color == self.choice:
-            return 2 * self.amount  # Double the amount for color bet
-        elif self.bet_type == 'number':
-            if number == self.choice:
-                return 36 * self.amount if self.choice != 0 else 37 * self.amount  # Higher payout for zero
-        return 0  # No winnings if the bet didn't match
-
 
 class Bot:
-    """Base bot class."""
     def __init__(self, name, budget):
         self.name = name
         self.budget = budget
 
     def place_bet(self):
-        """Method to be implemented by subclasses with different strategies."""
-        raise NotImplementedError
+        pass
+
+    def update_budget(self, amount):
+        self.budget += amount
 
 
 class ConservativeBot(Bot):
-    """Bot that bets conservatively on color 'Red'."""
     def place_bet(self):
         if self.budget > 0:
-            return Bet(amount=10, bet_type='color', choice='Red')
+            return Bet(amount=10, bet_type="color", choice="Red")
         return None
 
 
 class AggressiveBot(Bot):
-    """Bot that bets aggressively on specific numbers."""
     def place_bet(self):
         if self.budget > 0:
             number_choice = random.randint(1, 36)
-            return Bet(amount=50, bet_type='number', choice=number_choice)
+            return Bet(amount=50, bet_type="number", choice=number_choice)
         return None
 
 
 class RandomBot(Bot):
-    """Bot that places random bets."""
     def place_bet(self):
         if self.budget > 0:
-            bet_type = random.choice(['color', 'number'])
-            if bet_type == 'color':
-                color_choice = random.choice(['Red', 'Black'])
-                return Bet(amount=20, bet_type='color', choice=color_choice)
+            bet_type = random.choice(["color", "number"])
+            if bet_type == "color":
+                color_choice = random.choice(["Red", "Black"])
+                return Bet(amount=20, bet_type="color", choice=color_choice)
             else:
-                number_choice = random.randint(0, 36)  # Now includes 0
-                return Bet(amount=20, bet_type='number', choice=number_choice)
+                number_choice = random.randint(0, 36)
+                return Bet(amount=20, bet_type="number", choice=number_choice)
         return None
 
 
-class Game:
-    """Class to control the game flow."""
-    def __init__(self, bots, max_rounds=10):
+class RouletteGame:
+    COLORS = ["Red", "Black", "Green"]
+    MAX_STEPS = 10
+
+    def __init__(self, bots):
         self.bots = bots
-        self.wheel = Wheel()
-        self.round = 0
-        self.max_rounds = max_rounds
+        self.round = 1
+
+    def spin_wheel(self):
+        result_number = random.randint(0, 36)
+        if result_number == 0:
+            result_color = "Green"
+        else:
+            result_color = "Red" if result_number % 2 == 0 else "Black"
+        return result_number, result_color
+
+    def evaluate_bets(self, bet, result_number, result_color):
+        if bet.bet_type == "color" and bet.choice == result_color:
+            return bet.amount * (35 if result_color == "Green" else 2)
+        elif bet.bet_type == "number" and bet.choice == result_number:
+            return bet.amount * 36
+        return -bet.amount
+
+    def display_state(self):
+        print(f"Round {self.round}:")
+        for bot in self.bots:
+            print(f"  {bot.name} budget: {bot.budget}")
+        print("-" * 30)
 
     def play_round(self):
-        """Play a single round and evaluate bets."""
-        print(f"\n--- Round {self.round + 1} ---")
-        outcome = self.wheel.spin()
-        print(f"Wheel spun: Number {outcome[0]}, Color {outcome[1]}")
-        
+        result_number, result_color = self.spin_wheel()
+        print(f"Roulette spun to {result_number} ({result_color})")
+
         for bot in self.bots:
             bet = bot.place_bet()
             if bet:
-                print(f"{bot.name} bets {bet.amount} on {bet.bet_type} '{bet.choice}'")
-                winnings = bet.evaluate(outcome)
-                bot.budget += winnings - bet.amount
-                print(f"{bot.name} {'wins' if winnings else 'loses'}! New budget: {bot.budget}")
+                outcome = self.evaluate_bets(bet, result_number, result_color)
+                bot.update_budget(outcome)
+                print(
+                    f"{bot.name} bet {bet.amount} on {bet.choice} ({bet.bet_type}) and {'won' if outcome > 0 else 'lost'} {abs(outcome)}"
+                )
 
-    def show_status(self):
-        """Show the current status of the game."""
-        print("\n--- Game Status ---")
-        for bot in self.bots:
-            print(f"{bot.name}: Budget = {bot.budget}")
-        print(f"Rounds played: {self.round}\n")
+        self.display_state()
+        self.round += 1
 
     def play(self):
-        """Play the game until win condition or maximum rounds."""
-        while self.round < self.max_rounds:
-            if any(bot.budget >= 1000 for bot in self.bots):  # Win condition
-                print("Game over! We have a winner.")
-                break
+        while self.round <= self.MAX_STEPS and any(bot.budget > 0 for bot in self.bots):
             self.play_round()
-            self.round += 1
-            self.show_status()
-
-
-# Initialize bots and start the game
-bots = [ConservativeBot('Bot1', 100), AggressiveBot('Bot2', 100), RandomBot('Bot3', 100)]
-game = Game(bots)
-game.play()
