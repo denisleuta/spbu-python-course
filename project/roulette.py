@@ -2,6 +2,31 @@ import random
 from typing import List, Optional, Tuple
 
 
+class StrategyMeta(type):
+    """
+    Metaclass for registering different bot strategies dynamically.
+    """
+
+    strategies = {}
+
+    def __new__(cls, name, bases, dct):
+        new_cls = super().__new__(cls, name, bases, dct)
+        if name != "Bot":
+            StrategyMeta.strategies[name] = new_cls
+        return new_cls
+
+
+class GameRuleMeta(type):
+    """
+    Metaclass for configuring game rules dynamically, such as fields and victory conditions.
+    """
+
+    def __new__(cls, name, bases, dct):
+        dct.setdefault("NUMBER_OF_FIELDS", 30)
+        dct.setdefault("WINNING_BUDGET", 500)
+        return super().__new__(cls, name, bases, dct)
+
+
 class Bet:
     """
     Represents a bet placed by a bot in the game of Roulette.
@@ -18,17 +43,9 @@ class Bet:
         self.choice = choice
 
 
-class Bot:
+class Bot(metaclass=StrategyMeta):
     """
-    Represents a bot in the game with a specific betting strategy.
-
-    Attributes:
-        name (str): The name of the bot.
-        budget (int): The current budget of the bot.
-
-    Methods:
-        place_bet() -> Optional[Bet]: Places a bet based on the bot's strategy (to be implemented in subclasses).
-        update_budget(amount: int) -> None: Updates the bot's budget based on the outcome of a bet.
+    Base class for bots, with a dynamic strategy registration via StrategyMeta.
     """
 
     def __init__(self, name: str, budget: int) -> None:
@@ -36,21 +53,9 @@ class Bot:
         self.budget = budget
 
     def place_bet(self) -> Optional[Bet]:
-        """
-        Placeholder method for placing a bet. To be implemented in subclasses.
-
-        Returns:
-            Optional[Bet]: The bet placed by the bot, or None if no bet is placed.
-        """
         pass
 
     def update_budget(self, amount: int) -> None:
-        """
-        Updates the bot's budget by the specified amount.
-
-        Args:
-            amount (int): The amount to add to the budget (can be negative if the bot loses the bet).
-        """
         self.budget += amount
 
 
@@ -94,40 +99,42 @@ class RandomBot(Bot):
         return None
 
 
-class RouletteGame:
+class OnlyGreenBot(Bot):
     """
-    Represents a game of Roulette, with multiple bots and a spinning wheel.
+    A bot with a risky betting strategy, betting on the rarest 'Green' color.
+    """
+
+    def place_bet(self) -> Optional[Bet]:
+        if self.budget > 0:
+            return Bet(amount=20, bet_type="color", choice="Green")
+        return None
+
+
+class RouletteGame(metaclass=GameRuleMeta):
+    """
+    Represents the game of Roulette, managing the bots, rounds, and game mechanics.
 
     Attributes:
-        COLORS (List[str]): Available colors in the roulette game.
-        MAX_STEPS (int): Maximum number of rounds to play.
-        bots (List[Bot]): List of bots participating in the game.
-        round (int): Current round of the game.
-
-    Methods:
-        spin_wheel() -> Tuple[int, str]: Simulates a spin of the roulette wheel, returning a number and a color.
-        evaluate_bets(bet: Bet, result_number: int, result_color: str) -> int: Determines the outcome of a bet.
-        display_state() -> None: Displays the current state of the game.
-        play_round() -> None: Conducts a single round of the game.
-        check_for_winner() -> Optional[Bot]: Checks if there is a single winner with budget left.
-        play() -> None: Plays the game until a winner is determined or the maximum rounds are reached.
+        bots (List[Bot]): The list of bots participating in the game.
+        round (int): The current round number.
+        max_steps (int): The maximum number of rounds to play.
     """
 
     COLORS = ["Red", "Black", "Green"]
-    MAX_STEPS = 10
 
-    def __init__(self, bots: List[Bot]) -> None:
+    def __init__(self, bots: List[Bot], max_steps: int = 10) -> None:
         self.bots = bots
         self.round = 1
+        self.max_steps = max_steps
 
     def spin_wheel(self) -> Tuple[int, str]:
         """
-        Spins the roulette wheel, producing a random number and associated color.
+        Spins the roulette wheel and determines the outcome.
 
         Returns:
-            Tuple[int, str]: The number and color resulting from the spin.
+            Tuple[int, str]: A tuple containing the result number and its associated color.
         """
-        result_number = random.randint(0, 36)
+        result_number = random.randint(0, self.NUMBER_OF_FIELDS - 1)
         result_color = (
             "Green"
             if result_number == 0
@@ -139,15 +146,15 @@ class RouletteGame:
 
     def evaluate_bets(self, bet: Bet, result_number: int, result_color: str) -> int:
         """
-        Evaluates a bet based on the roulette spin result.
+        Evaluates the outcome of a bet based on the result of the spin.
 
         Args:
-            bet (Bet): The bet placed by the bot.
-            result_number (int): The number that was spun.
-            result_color (str): The color that was spun.
+            bet (Bet): The bet to evaluate.
+            result_number (int): The number that was spun on the roulette wheel.
+            result_color (str): The color that was spun on the roulette wheel.
 
         Returns:
-            int: The amount won or lost from the bet.
+            int: The amount won or lost based on the bet outcome.
         """
         if bet.bet_type == "color" and bet.choice == result_color:
             return bet.amount * (35 if result_color == "Green" else 2)
@@ -157,7 +164,7 @@ class RouletteGame:
 
     def display_state(self) -> None:
         """
-        Displays the current state of the game, including round and each bot's budget.
+        Displays the current state of the game, including the round number and each bot's budget.
         """
         print(f"Round {self.round}:")
         for bot in self.bots:
@@ -166,7 +173,7 @@ class RouletteGame:
 
     def play_round(self) -> None:
         """
-        Conducts a single round of the game, allowing each bot to place a bet and updating budgets.
+        Plays a single round of the roulette game, spinning the wheel and processing bets.
         """
         result_number, result_color = self.spin_wheel()
         print(f"Roulette spun to {result_number} ({result_color})")
@@ -184,22 +191,21 @@ class RouletteGame:
         self.round += 1
 
     def check_for_winner(self) -> Optional[Bot]:
-        """
-        Checks if there is a single winner, i.e., only one bot has a positive budget.
+        for bot in self.bots:
+            if bot.budget >= self.WINNING_BUDGET:
+                return bot
 
-        Returns:
-            Optional[Bot]: The winning bot if found, otherwise None.
-        """
         active_bots = [bot for bot in self.bots if bot.budget > 0]
         if len(active_bots) == 1:
             return active_bots[0]
+
         return None
 
     def play(self) -> None:
         """
-        Plays the game of Roulette until a winner is determined or the maximum rounds are reached.
+        Main game loop that continues until the maximum number of rounds is reached or a winner is found.
         """
-        while self.round <= self.MAX_STEPS and any(bot.budget > 0 for bot in self.bots):
+        while self.round <= self.max_steps and any(bot.budget > 0 for bot in self.bots):
             self.play_round()
             winner = self.check_for_winner()
             if winner:
