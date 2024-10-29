@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict
 
 
 class StrategyMeta(type):
@@ -7,7 +7,7 @@ class StrategyMeta(type):
     Metaclass for registering different bot strategies dynamically.
     """
 
-    strategies: dict[str, type] = {}
+    strategies: Dict[str, type] = {}
 
     def __new__(cls, name, bases, dct):
         new_cls = super().__new__(cls, name, bases, dct)
@@ -21,9 +21,10 @@ class GameRuleMeta(type):
     Metaclass for configuring game rules dynamically, such as fields and victory conditions.
     """
 
+    NUMBER_OF_FIELDS: int = 50
+    WINNING_BUDGET: int = 1000
+
     def __new__(cls, name, bases, dct):
-        dct["NUMBER_OF_FIELDS"] = 50
-        dct["WINNING_BUDGET"] = 1000
         return super().__new__(cls, name, bases, dct)
 
 
@@ -34,10 +35,10 @@ class Bet:
     Attributes:
         amount (int): The amount of money bet.
         bet_type (str): The type of bet (e.g., 'color' or 'number').
-        choice (int | str): The choice made for the bet, either a color or a specific number.
+        choice (Union[int, str]): The choice made for the bet, either a color or a specific number.
     """
 
-    def __init__(self, amount: int, bet_type: str, choice: Union[int | str]) -> None:
+    def __init__(self, amount: int, bet_type: str, choice: Union[int, str]) -> None:
         self.amount = amount
         self.bet_type = bet_type
         self.choice = choice
@@ -121,8 +122,8 @@ class RouletteGame(metaclass=GameRuleMeta):
     """
 
     COLORS = ["Red", "Black", "Green"]
-    NUMBER_OF_FIELDS: int
-    WINNING_BUDGET: int
+    NUMBER_OF_FIELDS: int = 50  # Explicitly declare class attribute
+    WINNING_BUDGET: int = 1000  # Explicitly declare class attribute
 
     def __init__(self, bots: List[Bot], max_steps: int = 10) -> None:
         self.bots = bots
