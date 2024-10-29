@@ -51,7 +51,7 @@ def test_bet_evaluation(setup_game: RouletteGame) -> None:
     winning_color = "Red"
     bet = Bet(amount=10, bet_type="color", choice="Red")
     result = game.evaluate_bets(bet, winning_number, winning_color)
-    assert result == 20  # Color match doubles the bet amount
+    assert result == 20
 
 
 def test_play_round(setup_game: RouletteGame) -> None:
