@@ -9,8 +9,8 @@ from project.roulette import (
     AggressiveBot,
     RandomBot,
     OnlyGreenBot,
-    Bet,
 )
+from project.game.bet import Bet
 
 
 @pytest.fixture
