@@ -6,7 +6,8 @@ from typing import Type
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from project.roulette import RouletteGame
 from project.game.bet import Bet
-from project.bots.bot import StrategyMeta
+from project.bots.bot import StrategyMeta, Bot
+from project.game.game_rule_meta import GameRuleMeta
 
 
 @pytest.fixture
@@ -95,3 +96,47 @@ def test_winning_condition(setup_game: RouletteGame) -> None:
     winner = game.check_for_winner()
     assert winner is not None
     assert winner.budget >= game.WINNING_BUDGET
+
+
+def test_game_rule_meta_constants():
+    assert RouletteGame.NUMBER_OF_FIELDS == 50, "NUMBER_OF_FIELDS must be equal 50"
+    assert RouletteGame.WINNING_BUDGET == 1000, "WINNING_BUDGET must be equal 1000"
+
+
+def test_custom_class_with_game_rule_meta():
+    class CustomGame(metaclass=GameRuleMeta):
+        pass
+
+    assert (
+        CustomGame.NUMBER_OF_FIELDS == 50
+    ), "NUMBER_OF_FIELDS must be equal 50 in CustomGame"
+    assert (
+        CustomGame.WINNING_BUDGET == 1000
+    ), "WINNING_BUDGET must be equal 1000 in CustomGame"
+
+
+class DummyStrategy(Bot):
+    def place_bet(self):
+        return None
+
+
+class AnotherStrategy(Bot):
+    def place_bet(self):
+        return None
+
+
+def test_strategy_registration():
+    strategies = StrategyMeta.get_strategies()
+    assert "DummyStrategy" in strategies, "DummyStrategy should be registered"
+    assert "AnotherStrategy" in strategies, "AnotherStrategy should be registered"
+
+
+def test_create_strategy_instance():
+    dummy_instance = StrategyMeta.create_strategy(
+        "DummyStrategy", name="TestBot", budget=100
+    )
+    assert isinstance(
+        dummy_instance, DummyStrategy
+    ), "The instance should be of type DummyStrategy"
+    assert dummy_instance.name == "TestBot", "The instance name should match 'TestBot'"
+    assert dummy_instance.budget == 100, "The instance budget should match 100"
