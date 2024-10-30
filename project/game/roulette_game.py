@@ -6,7 +6,13 @@ from project.game.game_rule_meta import GameRuleMeta
 
 
 class RouletteGame(metaclass=GameRuleMeta):
+    NUMBER_OF_FIELDS: int
+    WINNING_BUDGET: int
+
     COLORS = ["Red", "Black", "Green"]
+    WINNING_MULTIPLIER_COLOR = 2
+    WINNING_MULTIPLIER_NUMBER = 36
+    WINNING_MULTIPLIER_GREEN = 35
 
     def __init__(self, bots: List[Bot], max_steps: int = 10) -> None:
         self.bots = bots
@@ -26,9 +32,13 @@ class RouletteGame(metaclass=GameRuleMeta):
 
     def evaluate_bets(self, bet: Bet, result_number: int, result_color: str) -> int:
         if bet.bet_type == "color" and bet.choice == result_color:
-            return bet.amount * (35 if result_color == "Green" else 2)
+            return bet.amount * (
+                self.WINNING_MULTIPLIER_GREEN
+                if result_color == "Green"
+                else self.WINNING_MULTIPLIER_COLOR
+            )
         elif bet.bet_type == "number" and bet.choice == result_number:
-            return bet.amount * 36
+            return bet.amount * self.WINNING_MULTIPLIER_NUMBER
         return -bet.amount
 
     def display_state(self) -> None:
@@ -41,13 +51,14 @@ class RouletteGame(metaclass=GameRuleMeta):
         result_number, result_color = self.spin_wheel()
         print(f"Roulette spun to {result_number} ({result_color})")
         for bot in self.bots:
-            bet = bot.place_bet()
-            if bet:
-                outcome = self.evaluate_bets(bet, result_number, result_color)
-                bot.update_budget(outcome)
-                print(
-                    f"{bot.name} bet {bet.amount} on {bet.choice} ({bet.bet_type}) and {'won' if outcome > 0 else 'lost'} {abs(outcome)}"
-                )
+            if bot.budget > 0:
+                bet = bot.place_bet()
+                if bet:
+                    outcome = self.evaluate_bets(bet, result_number, result_color)
+                    bot.update_budget(outcome)
+                    print(
+                        f"{bot.name} bet {bet.amount} on {bet.choice} ({bet.bet_type}) and {'won' if outcome > 0 else 'lost'} {abs(outcome)}"
+                    )
         self.display_state()
         self.round += 1
 

@@ -1,28 +1,25 @@
 import pytest
 import sys
 import os
+from typing import Type
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.roulette import (
-    RouletteGame,
-    ConservativeBot,
-    AggressiveBot,
-    RandomBot,
-    OnlyGreenBot,
-    StrategicBot,
-)
+from project.roulette import RouletteGame
 from project.game.bet import Bet
+from project.bots.bot import StrategyMeta
 
 
 @pytest.fixture
 def setup_game() -> RouletteGame:
+    bot_names = ["Arthur", "Denis", "Misha"]
+    bot_budgets = [100, 100, 100]
+    bot_strategies = ["AggressiveBot", "OnlyGreenBot", "StrategicBot"]
+
     bots = [
-        ConservativeBot(name="Arthur", budget=100),
-        AggressiveBot(name="Denis", budget=100),
-        RandomBot(name="Misha", budget=100),
-        OnlyGreenBot(name="Mark", budget=100),
-        StrategicBot(name="Regina", budget=100),
+        StrategyMeta.create_strategy(strategy, name=name, budget=budget)
+        for strategy, name, budget in zip(bot_strategies, bot_names, bot_budgets)
     ]
+
     game = RouletteGame(bots)
     return game
 
@@ -93,8 +90,8 @@ def test_game_progression(setup_game: RouletteGame) -> None:
 
 def test_winning_condition(setup_game: RouletteGame) -> None:
     game = setup_game
-    for bot in game.bots:
-        bot.update_budget(1000 - bot.budget)
+    bot = game.bots[0]
+    bot.update_budget(game.WINNING_BUDGET - bot.budget)
     winner = game.check_for_winner()
     assert winner is not None
     assert winner.budget >= game.WINNING_BUDGET

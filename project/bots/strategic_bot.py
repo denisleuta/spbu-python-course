@@ -1,10 +1,10 @@
 import random
-from project.bots.bot import Bot
+from project.bots.bot import Bot, StrategyMeta
 from project.game.bet import Bet
 from typing import Optional, List, Tuple
 
 
-class StrategicBot(Bot):
+class StrategicBot(Bot, metaclass=StrategyMeta):
     def __init__(self, name: str, budget: int):
         super().__init__(name, budget)
         self.initial_budget = budget
@@ -47,6 +47,9 @@ class StrategicBot(Bot):
             )  # Bet all if the budget falls below 10% of the initial budget
         else:
             bet_amount = max(int(self.budget * 0.2), 1)  # Bet 20% of the current budget
+
+        # Ensure the bet amount does not exceed the budget
+        bet_amount = min(bet_amount, self.budget)
 
         bet_color = self.determine_bet_color()
         return Bet(amount=bet_amount, bet_type="color", choice=bet_color)
