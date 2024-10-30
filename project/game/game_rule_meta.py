@@ -16,6 +16,7 @@ class GameRuleMeta(type):
             The constants NUMBER_OF_FIELDS and WINNING_BUDGET are added to any class
             that uses this metaclass.
     """
+
     NUMBER_OF_FIELDS = 50
     WINNING_BUDGET = 1000
 

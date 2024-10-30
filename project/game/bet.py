@@ -18,6 +18,7 @@ class Bet:
         __init__(amount: int, bet_type: str, choice: Union[str, int]) -> None:
             Initializes a new Bet instance with the specified amount, bet type, and choice.
     """
+
     def __init__(self, amount: int, bet_type: str, choice: Union[str, int]) -> None:
         self.amount = amount
         self.bet_type = bet_type

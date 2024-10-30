@@ -9,7 +9,7 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
     A strategic betting bot that determines bets based on historical outcomes.
 
     This bot analyzes the results of previous rounds to inform its betting strategy.
-    It maintains a history of the last five rounds and adapts its betting color 
+    It maintains a history of the last five rounds and adapts its betting color
     based on the observed patterns.
 
     Attributes:
@@ -34,12 +34,11 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
             20% of the current budget (or at least 1 unit). It then determines the color for the bet
             and returns a Bet object.
     """
+
     def __init__(self, name: str, budget: int):
         super().__init__(name, budget)
         self.initial_budget = budget
-        self.history: List[
-            Tuple[int, str]
-        ] = []
+        self.history: List[Tuple[int, str]] = []
 
     def update_history(self, number: int, color: str) -> None:
         """Adds the result of a round to the history."""
@@ -65,9 +64,7 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
 
     def place_bet(self) -> Optional[Bet]:
         if self.budget <= self.initial_budget * 0.1:
-            bet_amount = (
-                self.budget
-            )
+            bet_amount = self.budget
         else:
             bet_amount = max(int(self.budget * 0.2), 1)
 

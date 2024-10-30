@@ -10,7 +10,7 @@ class RouletteGame(metaclass=GameRuleMeta):
     Represents a game of Roulette involving multiple betting bots.
 
     The RouletteGame class manages the game mechanics, including spinning the wheel,
-    evaluating bets, and determining winners based on the outcomes of each round. 
+    evaluating bets, and determining winners based on the outcomes of each round.
     It allows multiple bots to participate and tracks their budgets throughout the game.
 
     Attributes:
@@ -39,13 +39,14 @@ class RouletteGame(metaclass=GameRuleMeta):
             and displaying results.
 
         check_for_winner() -> Optional[Bot]:
-            Checks if any bot has reached the winning budget or if only one bot remains active. 
+            Checks if any bot has reached the winning budget or if only one bot remains active.
             Returns the winning bot if found, otherwise returns None.
 
         play() -> None:
             Manages the overall game loop, playing rounds until either the maximum steps are reached
             or all bots have lost their budgets. Declares a winner if applicable.
     """
+
     NUMBER_OF_FIELDS: int
     WINNING_BUDGET: int
 

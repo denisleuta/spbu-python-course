@@ -21,6 +21,7 @@ class OnlyGreenBot(Bot, metaclass=StrategyMeta):
             Places a bet on the color green if the current budget meets the minimum requirement.
             Returns a Bet object if a bet is placed, or None if the budget is insufficient.
     """
+
     BET_AMOUNT = 10
     COLOR_BET_TYPE = "color"
     COLOR_CHOICE = "Green"

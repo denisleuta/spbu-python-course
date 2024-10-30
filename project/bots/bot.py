@@ -24,6 +24,7 @@ class StrategyMeta(type):
         get_strategies(cls):
             Returns a dictionary of all registered strategies.
     """
+
     strategies: Dict[str, type] = {}
 
     def __new__(cls, name, bases, dct):
@@ -63,6 +64,7 @@ class Bot(metaclass=StrategyMeta):
         update_budget(amount: int) -> None:
             Updates the bot's budget by adding the specified amount.
     """
+
     def __init__(self, name: str, budget: int) -> None:
         self.name = name
         self.budget = budget

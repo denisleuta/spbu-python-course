@@ -10,7 +10,7 @@ class AggressiveBot(Bot, metaclass=StrategyMeta):
 
     This bot prioritizes placing bets on numbers when the budget allows,
     and resorts to color bets when the budget is insufficient for number bets.
-    
+
     Attributes:
         MAX_BUDGET_FOR_NUMBER_BET (int): The maximum budget allowed for placing a number bet.
         NUMBER_BET_AMOUNT (int): The fixed amount to bet on a number.
@@ -25,6 +25,7 @@ class AggressiveBot(Bot, metaclass=StrategyMeta):
             it places a number bet; otherwise, it places a color bet if the budget
             allows. Returns a Bet object if a bet is placed, or None if no bet can be made.
     """
+
     MAX_BUDGET_FOR_NUMBER_BET = 50
     NUMBER_BET_AMOUNT = 50
     MIN_BUDGET_FOR_COLOR_BET = 10
