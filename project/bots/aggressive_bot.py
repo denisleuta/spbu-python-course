@@ -3,6 +3,7 @@ from project.game.bet import Bet
 from typing import Optional
 import random
 
+
 class AggressiveBot(Bot):
     def place_bet(self) -> Optional[Bet]:
         if self.budget >= 50:

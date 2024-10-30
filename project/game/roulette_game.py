@@ -15,7 +15,13 @@ class RouletteGame(metaclass=GameRuleMeta):
 
     def spin_wheel(self) -> Tuple[int, str]:
         result_number = random.randint(0, self.NUMBER_OF_FIELDS - 1)
-        result_color = "Green" if result_number == 0 else "Red" if result_number % 2 == 0 else "Black"
+        result_color = (
+            "Green"
+            if result_number == 0
+            else "Red"
+            if result_number % 2 == 0
+            else "Black"
+        )
         return result_number, result_color
 
     def evaluate_bets(self, bet: Bet, result_number: int, result_color: str) -> int:
@@ -39,7 +45,9 @@ class RouletteGame(metaclass=GameRuleMeta):
             if bet:
                 outcome = self.evaluate_bets(bet, result_number, result_color)
                 bot.update_budget(outcome)
-                print(f"{bot.name} bet {bet.amount} on {bet.choice} ({bet.bet_type}) and {'won' if outcome > 0 else 'lost'} {abs(outcome)}")
+                print(
+                    f"{bot.name} bet {bet.amount} on {bet.choice} ({bet.bet_type}) and {'won' if outcome > 0 else 'lost'} {abs(outcome)}"
+                )
         self.display_state()
         self.round += 1
 

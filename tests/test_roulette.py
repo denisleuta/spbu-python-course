@@ -9,6 +9,7 @@ from project.roulette import (
     AggressiveBot,
     RandomBot,
     OnlyGreenBot,
+    StrategicBot,
 )
 from project.game.bet import Bet
 
@@ -20,6 +21,7 @@ def setup_game() -> RouletteGame:
         AggressiveBot(name="Denis", budget=100),
         RandomBot(name="Misha", budget=100),
         OnlyGreenBot(name="Mark", budget=100),
+        StrategicBot(name="Regina", budget=100),
     ]
     game = RouletteGame(bots)
     return game

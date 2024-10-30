@@ -3,10 +3,13 @@ from project.game.bet import Bet
 from typing import Optional
 import random
 
+
 class RandomBot(Bot):
     def place_bet(self) -> Optional[Bet]:
         if self.budget > 0:
-            amount = random.randint(1, min(20, self.budget))  # Случайная сумма, ограниченная бюджетом
+            amount = random.randint(
+                1, min(20, self.budget)
+            )  # Случайная сумма, ограниченная бюджетом
             bet_type = random.choice(["color", "number"])
             if bet_type == "color":
                 choice = random.choice(["Red", "Black", "Green"])
