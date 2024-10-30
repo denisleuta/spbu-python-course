@@ -6,6 +6,46 @@ from project.game.game_rule_meta import GameRuleMeta
 
 
 class RouletteGame(metaclass=GameRuleMeta):
+    """
+    Represents a game of Roulette involving multiple betting bots.
+
+    The RouletteGame class manages the game mechanics, including spinning the wheel,
+    evaluating bets, and determining winners based on the outcomes of each round. 
+    It allows multiple bots to participate and tracks their budgets throughout the game.
+
+    Attributes:
+        NUMBER_OF_FIELDS (int): The total number of fields in the roulette game (inherited from GameRuleMeta).
+        WINNING_BUDGET (int): The budget required to win the game (inherited from GameRuleMeta).
+        COLORS (List[str]): A list of colors used in the roulette game (Red, Black, Green).
+        WINNING_MULTIPLIER_COLOR (int): The multiplier for winning color bets.
+        WINNING_MULTIPLIER_NUMBER (int): The multiplier for winning number bets.
+        WINNING_MULTIPLIER_GREEN (int): The multiplier for winning bets on Green.
+
+    Methods:
+        __init__(bots: List[Bot], max_steps: int = 10) -> None:
+            Initializes a new instance of RouletteGame with a list of bots and a maximum number of rounds.
+
+        spin_wheel() -> Tuple[int, str]:
+            Simulates spinning the roulette wheel and returns the result number and corresponding color.
+
+        evaluate_bets(bet: Bet, result_number: int, result_color: str) -> int:
+            Evaluates a bet based on the outcome of the spin and returns the resulting amount won or lost.
+
+        display_state() -> None:
+            Displays the current state of the game, including each bot's budget at the start of a round.
+
+        play_round() -> None:
+            Conducts a single round of betting, spinning the wheel, evaluating bets, updating bot budgets,
+            and displaying results.
+
+        check_for_winner() -> Optional[Bot]:
+            Checks if any bot has reached the winning budget or if only one bot remains active. 
+            Returns the winning bot if found, otherwise returns None.
+
+        play() -> None:
+            Manages the overall game loop, playing rounds until either the maximum steps are reached
+            or all bots have lost their budgets. Declares a winner if applicable.
+    """
     NUMBER_OF_FIELDS: int
     WINNING_BUDGET: int
 
