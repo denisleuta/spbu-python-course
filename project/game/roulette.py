@@ -12,4 +12,3 @@ def main():
     ]
     game = RouletteGame(bots)
     game.play()
-

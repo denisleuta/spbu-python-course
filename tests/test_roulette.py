@@ -1,24 +1,66 @@
 import pytest
+import random
 import sys
 import os
-from typing import Type
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.game.roulette import RouletteGame
+from project.game.roulette import RouletteGame, AggressiveBot, OnlyGreenBot
 from project.game.bet import Bet
 from project.bots.bot import StrategyMeta, Bot
 from project.game.game_rule_meta import GameRuleMeta
+
+
+def create_random_bot(name: str, budget: int) -> Bot:
+    """
+    Creates a bot with a random betting strategy.
+
+    This function dynamically generates a new bot class, `RandomBot`, that inherits from the `Bot` class.
+    The `RandomBot` places bets on one of the three possible colors ("Red", "Black", or "Green") with a random amount.
+    The amount bet is randomly selected between 10 and 50, but it is capped at the bot's available budget.
+
+    Args:
+        name (str): The name of the bot.
+        budget (int): The starting budget for the bot.
+
+    Returns:
+        Bot: An instance of `RandomBot` with the specified name and budget.
+
+    Example:
+        bot = create_random_bot("Arthur", 100)
+        # Creates a RandomBot instance with the name "Arthur" and budget 100.
+    """
+
+    class RandomBot(Bot):
+        def place_bet(self) -> Bet:
+            """
+            Randomly places a bet on one of the colors: "Red", "Black", or "Green".
+
+            The amount wagered is a random integer between 10 and 50, capped by the bot's available budget.
+
+            Returns:
+                Bet: A Bet object representing the placed bet.
+            """
+            color_choice = random.choice(["Red", "Black", "Green"])
+            amount = min(self.budget, random.randint(10, 50))
+            return Bet(amount=amount, bet_type="color", choice=color_choice)
+
+    return RandomBot(name=name, budget=budget)
 
 
 @pytest.fixture
 def setup_game() -> RouletteGame:
     bot_names = ["Arthur", "Denis", "Misha"]
     bot_budgets = [100, 100, 100]
-    bot_strategies = ["AggressiveBot", "OnlyGreenBot", "StrategicBot"]
+
+    strategies = {
+        "AggressiveBot": AggressiveBot,
+        "OnlyGreenBot": OnlyGreenBot,
+        "RandomBot": create_random_bot,
+    }
 
     bots = [
-        StrategyMeta.create_strategy(strategy, name=name, budget=budget)
-        for strategy, name, budget in zip(bot_strategies, bot_names, bot_budgets)
+        strategies["RandomBot"](name=name, budget=budget)
+        for name, budget in zip(bot_names, bot_budgets)
     ]
 
     game = RouletteGame(bots)
