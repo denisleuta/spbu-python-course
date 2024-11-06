@@ -1,6 +1,6 @@
 from collections.abc import MutableMapping
 import random
-from typing import Optional, Tuple, Iterator, Any
+from typing import List, Optional, Tuple, Iterator, Any
 
 
 class CartesianTree(MutableMapping):
@@ -128,7 +128,7 @@ class CartesianTree(MutableMapping):
         """
         Implements in-order traversal (ascending order) of the tree's keys.
         """
-        stack: list[CartesianTree.Node] = []
+        stack: List[CartesianTree.Node] = []
         node = self.root
         while stack or node:
             while node:
@@ -142,7 +142,7 @@ class CartesianTree(MutableMapping):
         """
         Implements reverse in-order traversal (descending order) of the tree's keys.
         """
-        stack: list[CartesianTree.Node] = []
+        stack: List[CartesianTree.Node] = []  # Annotated as a List of Node
         node = self.root
         while stack or node:
             while node:
