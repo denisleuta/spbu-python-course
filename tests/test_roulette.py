@@ -4,7 +4,7 @@ import os
 from typing import Type
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.roulette import RouletteGame
+from project.game.roulette import RouletteGame
 from project.game.bet import Bet
 from project.bots.bot import StrategyMeta, Bot
 from project.game.game_rule_meta import GameRuleMeta

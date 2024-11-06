@@ -1,9 +1,9 @@
-from project.bots.bot import Bot, StrategyMeta
+from project.bots.bot import Bot
 from project.game.bet import Bet
 from typing import Optional
 
 
-class OnlyGreenBot(Bot, metaclass=StrategyMeta):
+class OnlyGreenBot(Bot):
     """
     A betting bot that exclusively places bets on the color green.
 
@@ -22,10 +22,10 @@ class OnlyGreenBot(Bot, metaclass=StrategyMeta):
             Returns a Bet object if a bet is placed, or None if the budget is insufficient.
     """
 
-    BET_AMOUNT = 10
-    COLOR_BET_TYPE = "color"
-    COLOR_CHOICE = "Green"
-    MIN_BUDGET_FOR_BET = 10
+    BET_AMOUNT: int = 10
+    COLOR_BET_TYPE: str = "color"
+    COLOR_CHOICE: str = "Green"
+    MIN_BUDGET_FOR_BET: int = 10
 
     def place_bet(self) -> Optional[Bet]:
         if self.budget >= self.MIN_BUDGET_FOR_BET:

@@ -1,10 +1,10 @@
 import random
-from project.bots.bot import Bot, StrategyMeta
+from project.bots.bot import Bot
 from project.game.bet import Bet
 from typing import Optional, List, Tuple
 
 
-class StrategicBot(Bot, metaclass=StrategyMeta):
+class StrategicBot(Bot):
     """
     A strategic betting bot that determines bets based on historical outcomes.
 
@@ -35,6 +35,11 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
             and returns a Bet object.
     """
 
+    COLOR_GREEN: str = "Green"
+    COLOR_RED: str = "Red"
+    COLOR_BLACK: str = "Black"
+    BET_TYPE_COLOR: str = "color"
+
     def __init__(self, name: str, budget: int):
         super().__init__(name, budget)
         self.initial_budget = budget
@@ -52,13 +57,13 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
             return random.choice(["Red", "Black", "Green"])
 
         last_color = self.history[-1][1]
-        if all(color != "Green" for _, color in self.history):
-            return "Green"
+        if all(color != self.COLOR_GREEN for _, color in self.history):
+            return self.COLOR_GREEN
 
-        if last_color == "Red":
-            return "Black"
-        elif last_color == "Black":
-            return "Red"
+        if last_color == self.COLOR_RED:
+            return self.COLOR_BLACK
+        elif last_color == self.COLOR_BLACK:
+            return self.COLOR_RED
         else:
             return random.choice(["Red", "Black"])
 
@@ -71,4 +76,4 @@ class StrategicBot(Bot, metaclass=StrategyMeta):
         bet_amount = min(bet_amount, self.budget)
 
         bet_color = self.determine_bet_color()
-        return Bet(amount=bet_amount, bet_type="color", choice=bet_color)
+        return Bet(amount=bet_amount, bet_type=self.BET_TYPE_COLOR, choice=bet_color)

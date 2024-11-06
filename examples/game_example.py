@@ -2,7 +2,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from project.roulette import RouletteGame
+from project.game.roulette import RouletteGame
 from project.bots.bot import StrategyMeta
 
 available_strategies = StrategyMeta.get_strategies()
