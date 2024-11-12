@@ -52,6 +52,62 @@ sns.countplot(x="Pclass", data=data)
 plt.title("The distribution of passengers by class")
 plt.show()
 
+sankey_data = (
+    data.groupby(["Pclass", "Sex", "Survived"]).size().reset_index(name="Count")
+)
+
+classes = sorted(data["Pclass"].unique())
+sexes = sorted(data["Sex"].unique())
+survival_status = ["Did not Survive", "Survived"]
+
+nodes = {
+    **{f"Class {cls}": i for i, cls in enumerate(classes)},
+    **{sex: i + len(classes) for i, sex in enumerate(sexes)},
+    **{
+        status: i + len(classes) + len(sexes)
+        for i, status in enumerate(survival_status)
+    },
+}
+
+sources = []
+targets = []
+values = []
+
+for cls in classes:
+    for sex in sexes:
+        count = sankey_data[
+            (sankey_data["Pclass"] == cls) & (sankey_data["Sex"] == sex)
+        ]["Count"].sum()
+        if count > 0:
+            sources.append(nodes[f"Class {cls}"])
+            targets.append(nodes[sex])
+            values.append(count)
+
+for sex in sexes:
+    for i, status in enumerate([0, 1]):
+        count = sankey_data[
+            (sankey_data["Sex"] == sex) & (sankey_data["Survived"] == status)
+        ]["Count"].sum()
+        if count > 0:
+            sources.append(nodes[sex])
+            targets.append(nodes[survival_status[status]])
+            values.append(count)
+
+fig = go.Figure(
+    go.Sankey(
+        node=dict(
+            pad=15,
+            thickness=20,
+            line=dict(color="black", width=0.5),
+            label=list(nodes.keys()),
+        ),
+        link=dict(source=sources, target=targets, value=values),
+    )
+)
+
+fig.update_layout(title_text="Passenger Flow by Class, Sex, and Survival", font_size=12)
+fig.show()
+
 plt.figure(figsize=(10, 6))
 sns.scatterplot(
     data=data, x="Age", y="Fare", hue="Pclass", size="Relatives", sizes=(20, 200)
