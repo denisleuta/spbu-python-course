@@ -68,14 +68,12 @@ sns.countplot(x="Pclass", data=data)
 plt.title("The distribution of passengers by class")
 plt.show()
 
-# Prepare data for Sankey diagram
-sankey_data = (
-    data.groupby(["Pclass", "Sex", "Survived"])
-    .size()
-    .to_frame(name="Count")
-    .reset_index()
-)
+# Group by columns and count the number
+grouped_data = data.groupby(["Pclass", "Sex", "Survived"]).size()
 
+# Convert Series to DataFrame directly
+sankey_data = pd.DataFrame(grouped_data).reset_index()
+sankey_data = pd.DataFrame(grouped_data, columns=["Count"]).reset_index()
 
 # Define unique classes, sexes, and survival statuses
 classes = sorted(data["Pclass"].unique())
