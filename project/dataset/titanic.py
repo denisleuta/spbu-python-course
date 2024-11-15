@@ -7,12 +7,8 @@ import warnings
 
 
 # Load data from CSV files
-train = pd.read_csv(
-    "C:/Users/denis/OneDrive/Рабочий стол/Python/spbu-python-course-1/project/dataset/train.csv"
-)
-test = pd.read_csv(
-    "C:/Users/denis/OneDrive/Рабочий стол/Python/spbu-python-course-1/project/dataset/test.csv"
-)
+train = pd.read_csv("project/dataset/train.csv")
+test = pd.read_csv("project/dataset/test.csv")
 
 # Combine training and test datasets into a single DataFrame
 data = pd.concat([train, test], ignore_index=True)
@@ -46,6 +42,7 @@ survivors_with_k_sorted = survivors_with_k.sort_values(by="Fare", ascending=Fals
 # Print the names of the highest and lowest fare-paying survivors with 'K'
 print("Passenger paid more than all:", survivors_with_k_sorted.iloc[0]["Name"])
 print("Passenger paid less than all:", survivors_with_k_sorted.iloc[-1]["Name"])
+print(survivors_with_k_sorted)
 
 # Create a new column that sums the number of relatives (SibSp + Parch)
 data["Relatives"] = data["SibSp"] + data["Parch"]
