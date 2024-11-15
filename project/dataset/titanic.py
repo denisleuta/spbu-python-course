@@ -1,5 +1,5 @@
-import pandas as pd
-import seaborn as sns
+import pandas as pd  # type: ignore
+import seaborn as sns  # type: ignore
 import matplotlib.pyplot as plt  # type: ignore
 import plotly.express as px  # type: ignore
 import plotly.graph_objects as go  # type: ignore
