@@ -5,4 +5,4 @@ numpy
 pandas
 pre-commit
 pytest
-sklearn
+scikit-learn
