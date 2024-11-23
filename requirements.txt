@@ -1,4 +1,9 @@
 black
+imbalanced-learn
+matplotlib
 mypy
+pandas
 pre-commit
 pytest
+scikit-learn
+seaborn
