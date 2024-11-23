@@ -1,13 +1,11 @@
+black
 imbalanced-learn
 matplotlib
 mypy
-pandas
-plotly 
-pre-commit
-pytest
-matplotlib
 numpy
 pandas
-scikit-learn
 plotly
+pre-commit
+pytest
+scikit-learn
 seaborn
