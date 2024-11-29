@@ -5,5 +5,9 @@ pandas
 plotly 
 pre-commit
 pytest
-scikit-learn  
+matplotlib
+numpy
+pandas
+scikit-learn
+plotly
 seaborn
