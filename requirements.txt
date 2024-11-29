@@ -2,7 +2,9 @@ black
 imbalanced-learn
 matplotlib
 mypy
+numpy
 pandas
+plotly
 pre-commit
 pytest
 scikit-learn
